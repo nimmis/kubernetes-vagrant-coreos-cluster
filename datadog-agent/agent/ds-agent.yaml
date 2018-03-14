@@ -2,20 +2,16 @@ apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
   name: datadog-agent
-  namespace: default
 spec:
   template:
     metadata:
       labels:
         app: datadog-agent
-        label_to_get: My_DDAgent_xyz
-        label_not_to_get: blahblah123
       name: datadog-agent
     spec:
       serviceAccountName: datadog-agent
       containers:
-      - image: datadog/agent:latest # Agent builds: https://hub.docker.com/r/datadog/agent/tags/
-      #- image: datadog/agent-dev:latest # Agent-Dev builds: https://hub.docker.com/r/datadog/agent-dev/tags/
+      - image: datadog/agent:latest
         imagePullPolicy: Always
         name: datadog-agent
         ports:
@@ -28,12 +24,10 @@ spec:
         env:
         # DD Default stuff
           - name: DD_API_KEY
-            # value: <YOUR_API_KEY>
             valueFrom:
               secretKeyRef:
-                # See secrets.yaml.example
                 name: dd-secrets
-                key: dd_api_key
+                key: DD_API_KEY
           - name: DD_COLLECT_KUBERNETES_EVENTS
             value: "true"
           - name: DD_LEADER_ELECTION
@@ -50,16 +44,6 @@ spec:
         # DD Other variables
           - name: DD_LOG_LEVEL
             value: "debug"
-          - name: DD_KUBERNETES_POD_LABELS_AS_TAGS
-            value: '{"label_to_get":"ian_test_tag"}'
-          - name: DD_APM_ENABLED
-            value: "true"
-        # Other variables
-          - name: ENV
-            valueFrom:
-              configMapKeyRef:
-                name: cm-datadog-confd
-                key: ENV_ENV
         # Other stuff
         resources:
           requests:
@@ -93,12 +77,12 @@ spec:
         # Others stuff
           - name: ssl-certs
             mountPath: /etc/kubernetes/ssl
-        livenessProbe:
-          exec:
-            command:
-            - ./probe.sh
-          initialDelaySeconds: 20
-          periodSeconds: 10
+        # livenessProbe:
+        #   exec:
+        #     command:
+        #     - ./probe.sh
+        #   initialDelaySeconds: 20
+        #   periodSeconds: 10
       volumes:
       # DD Default stuff
         - hostPath:
@@ -124,6 +108,8 @@ spec:
             items:
               - key: logs.yaml
                 path: agentlogs.yaml
+              # - key: kubernetes-state-config
+              #   path: kubernetes_state.d/auto_conf.yaml
               - key: goexpvar-config
                 path: go_expvar.d/auto_conf.yaml
         # - name: vol-datadog-checksd

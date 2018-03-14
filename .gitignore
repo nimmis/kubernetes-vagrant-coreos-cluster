@@ -6,5 +6,5 @@
 temp/*
 synced_folders.yaml
 artifacts/*
-agent/secret*
 DD
+datadog-agent/agent/sercret-datadog\.yaml
