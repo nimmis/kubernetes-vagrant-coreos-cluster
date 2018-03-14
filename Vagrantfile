@@ -65,7 +65,7 @@ NODE_YAML = File.join(File.dirname(__FILE__), "node.yaml")
 
 # AUTHORIZATION MODE is a setting for enabling or disabling RBAC for your Kubernetes Cluster
 # The default mode is ABAC.
-AUTHORIZATION_MODE = ENV["AUTHORIZATION_MODE"] || "AlwaysAllow"
+AUTHORIZATION_MODE = ENV['AUTHORIZATION_MODE'] || 'RBAC'
 
 if AUTHORIZATION_MODE == "RBAC"
   CERTS_MASTER_SCRIPT = File.join(File.dirname(__FILE__), "tls/make-certs-master-rbac.sh")
@@ -107,13 +107,13 @@ if COREOS_VERSION == "latest"
                         open(url).read().scan(/COREOS_VERSION=.*/)[0].gsub("COREOS_VERSION=", ""))
 end
 
-NODES = ENV["NODES"] || 2
+NODES = ENV['NODES'] || 1
 
-MASTER_MEM = ENV["MASTER_MEM"] || 1024
-MASTER_CPUS = ENV["MASTER_CPUS"] || 2
+MASTER_MEM = ENV['MASTER_MEM'] || 1024
+MASTER_CPUS = ENV['MASTER_CPUS'] || 1
 
-NODE_MEM = ENV["NODE_MEM"] || 2048
-NODE_CPUS = ENV["NODE_CPUS"] || 2
+NODE_MEM= ENV['NODE_MEM'] || 1536
+NODE_CPUS = ENV['NODE_CPUS'] || 1
 
 BASE_IP_ADDR = ENV["BASE_IP_ADDR"] || "172.17.8"
 
@@ -198,16 +198,21 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.proxy.enabled = {docker: false}
   end
 
+  hostname_prefix = "k8s-"
+  hostname_master = "master"
+  hostname_node = "node"
   (1..(NODES.to_i + 1)).each do |i|
     if i == 1
-      hostname = "master"
-      ETCD_SEED_CLUSTER = "#{hostname}=http://#{BASE_IP_ADDR}.#{i + 100}:2380"
+      master_hostname = "#{hostname_prefix}#{hostname_master}"
+      hostname = master_hostname
+      ETCD_SEED_CLUSTER = "#{hostname}=http://#{BASE_IP_ADDR}.#{i+100}:2380"
       cfg = MASTER_YAML
       memory = MASTER_MEM
       cpus = MASTER_CPUS
       MASTER_IP = "#{BASE_IP_ADDR}.#{i + 100}"
     else
-      hostname = "node-%02d" % (i - 1)
+      node_hostname = "#{hostname_prefix}#{hostname_node}-%02d" % (i - 1)
+      hostname = node_hostname
       cfg = NODE_YAML
       memory = NODE_MEM
       cpus = NODE_CPUS
@@ -232,7 +237,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       # vagrant-triggers has no concept of global triggers so to avoid having
       # then to run as many times as the total number of VMs we only call them
       # in the master (re: emyl/vagrant-triggers#13)...
-      if vmName == "master"
+      if vmName == master_hostname
         kHost.trigger.before [:up, :provision] do
           info "#{Time.now}: setting up Kubernetes master..."
           info "Setting Kubernetes version #{KUBERNETES_VERSION}"
@@ -386,7 +391,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
       end
 
-      if vmName == "node-%02d" % (i - 1)
+      if vmName == node_hostname
         kHost.trigger.before [:up, :provision] do
           info "#{Time.now}: setting up node..."
         end
@@ -511,7 +516,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       end
 
       # Copy TLS stuff
-      if vmName == "master"
+      if vmName == master_hostname
         kHost.vm.provision :file, :source => "#{CERTS_MASTER_SCRIPT}", :destination => "/tmp/make-certs.sh"
         kHost.vm.provision :file, :source => "#{CERTS_MASTER_CONF}", :destination => "/tmp/openssl.cnf"
         kHost.vm.provision :shell, :privileged => true,
@@ -526,21 +531,21 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       else
         kHost.vm.provision :file, :source => "#{CERTS_NODE_SCRIPT}", :destination => "/tmp/make-certs.sh"
         kHost.vm.provision :file, :source => "#{CERTS_NODE_CONF}", :destination => "/tmp/openssl.cnf"
-        kHost.vm.provision :file, :source => "#{CERTS_NODE_CONF}", :destination => "/tmp/openssl.cnf"
         kHost.vm.provision :shell, run: "always" do |s|
           s.inline = "mkdir -p /etc/kubernetes && cp -R /vagrant/tls/node-kubeconfig.yaml /etc/kubernetes/node-kubeconfig.yaml"
           s.privileged = true
         end
         kHost.vm.provision :shell, :privileged => true,
-                                   inline: <<-EOF
-          sed -i"*" "s|__NODE_IP__|#{BASE_IP_ADDR}.#{i + 100}|g" /tmp/openssl.cnf
+        inline: <<-EOF
+          sed -i"*" "s|__NAME__|#{vmName}|g" /tmp/make-certs.sh
+          sed -i"*" "s|__NODE_IP__|#{BASE_IP_ADDR}.#{i+100}|g" /tmp/openssl.cnf
           sed -i"*" "s|__MASTER_IP__|#{MASTER_IP}|g" /etc/kubernetes/node-kubeconfig.yaml
         EOF
       end
 
       # Process Kubernetes manifests, depending on node type
       begin
-        if vmName == "master"
+        if vmName == master_hostname
           if AUTHORIZATION_MODE == "RBAC"
             kHost.vm.provision :shell, run: "always" do |s|
               s.inline = "mkdir -p /etc/kubernetes/manifests && find /vagrant/manifests/master* ! -name master-apiserver.yaml -exec cp -t /etc/kubernetes/manifests {} +"

@@ -125,7 +125,7 @@ coreos:
             --address=$private_ipv4 \
             --allow-privileged=true \
             --pod-manifest-path=/etc/kubernetes/manifests \
-            --hostname-override=$public_ipv4 \
+            --node-ip=$public_ipv4 \
             --cluster_dns=10.100.0.10 \
             --cluster_domain=__DNS_DOMAIN__ \
             --kubeconfig=/etc/kubernetes/node-kubeconfig.yaml \
