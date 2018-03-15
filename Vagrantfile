@@ -117,7 +117,8 @@ NODE_CPUS = ENV['NODE_CPUS'] || 1
 
 BASE_IP_ADDR = ENV["BASE_IP_ADDR"] || "172.17.8"
 
-DNS_DOMAIN = ENV["DNS_DOMAIN"] || "cluster.local"
+DNS_PROVIDER = ENV['DNS_PROVIDER'] || "kube-dns" # default: coredns
+DNS_DOMAIN = ENV['DNS_DOMAIN'] || "cluster.local"
 
 SERIAL_LOGGING = (ENV["SERIAL_LOGGING"].to_s.downcase == "true")
 GUI = (ENV["GUI"].to_s.downcase == "true")
@@ -537,8 +538,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
         kHost.vm.provision :shell, :privileged => true,
         inline: <<-EOF
-          sed -i"*" "s|__NAME__|#{vmName}|g" /tmp/make-certs.sh
+          sed -i"*" "s|__NAME__|#{vmName}|g" /tmp/openssl.cnf
           sed -i"*" "s|__NODE_IP__|#{BASE_IP_ADDR}.#{i+100}|g" /tmp/openssl.cnf
+          sed -i"*" "s|__NODE_IP__|#{BASE_IP_ADDR}.#{i+100}|g" /tmp/make-certs.sh
           sed -i"*" "s|__MASTER_IP__|#{MASTER_IP}|g" /etc/kubernetes/node-kubeconfig.yaml
         EOF
       end
