@@ -2,6 +2,7 @@ apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
   name: datadog-agent
+  namespace: default
 spec:
   template:
     metadata:
@@ -24,10 +25,11 @@ spec:
         env:
         # DD Default stuff
           - name: DD_API_KEY
+            # value: <YOUR_API_KEY>
             valueFrom:
               secretKeyRef:
                 name: dd-secrets
-                key: DD_API_KEY
+                key: dd_api_key
           - name: DD_COLLECT_KUBERNETES_EVENTS
             value: "true"
           - name: DD_LEADER_ELECTION
