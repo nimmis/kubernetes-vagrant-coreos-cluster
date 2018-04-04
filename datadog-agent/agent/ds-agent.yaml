@@ -79,12 +79,12 @@ spec:
         # Others stuff
           - name: ssl-certs
             mountPath: /etc/kubernetes/ssl
-        # livenessProbe:
-        #   exec:
-        #     command:
-        #     - ./probe.sh
-        #   initialDelaySeconds: 20
-        #   periodSeconds: 10
+        livenessProbe:
+          exec:
+            command:
+            - ./probe.sh
+          initialDelaySeconds: 20
+          periodSeconds: 10
       volumes:
       # DD Default stuff
         - hostPath:
