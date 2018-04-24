@@ -140,6 +140,7 @@ coreos:
             --allow-privileged=true \
             --pod-manifest-path=/etc/kubernetes/manifests \
             --node-ip=$public_ipv4 \
+            --node-labels=cname=kubelet \
             --cluster_dns=10.100.0.10 \
             --cluster_domain=__DNS_DOMAIN__ \
             --kubeconfig=/etc/kubernetes/master-kubeconfig.yaml \

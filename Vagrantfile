@@ -122,7 +122,7 @@ DNS_DOMAIN = ENV['DNS_DOMAIN'] || "cluster.local"
 
 SERIAL_LOGGING = (ENV["SERIAL_LOGGING"].to_s.downcase == "true")
 GUI = (ENV["GUI"].to_s.downcase == "true")
-USE_KUBE_UI = ENV["USE_KUBE_UI"] || false
+USE_KUBE_UI = ENV['USE_KUBE_UI'] || true
 
 BOX_TIMEOUT_COUNT = ENV["BOX_TIMEOUT_COUNT"] || 50
 

@@ -8,7 +8,6 @@ metadata:
   annotations:
     prometheus.io/scrape: 'true'
 spec:
-  type: NodePort
   ports:
   - name: http-metrics
     port: 8080

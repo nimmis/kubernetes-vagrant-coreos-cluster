@@ -8,6 +8,8 @@ spec:
     metadata:
       labels:
         app: datadog-agent
+        label_to_get: My_DDAgent_xyz
+        label_not_to_get: blahblah123
       name: datadog-agent
     spec:
       serviceAccountName: datadog-agent
@@ -46,6 +48,8 @@ spec:
         # DD Other variables
           - name: DD_LOG_LEVEL
             value: "debug"
+          - name: DD_KUBERNETES_POD_LABELS_AS_TAGS
+            value: '{"label_to_get":"ian_test_tag"}'
         # Other stuff
         resources:
           requests:
@@ -110,8 +114,6 @@ spec:
             items:
               - key: logs.yaml
                 path: agentlogs.yaml
-              # - key: kubernetes-state-config
-              #   path: kubernetes_state.d/auto_conf.yaml
               - key: goexpvar-config
                 path: go_expvar.d/auto_conf.yaml
         # - name: vol-datadog-checksd
