@@ -9,11 +9,11 @@ metadata:
     prometheus.io/scrape: 'true'
 spec:
   ports:
-  - name: http-metrics
+  - name: http-metrics-svc
     port: 8080
     targetPort: http-metrics
     protocol: TCP
-  - name: telemetry
+  - name: telemetry-svc
     port: 8081
     targetPort: telemetry
     protocol: TCP
