@@ -1,13 +1,13 @@
 # kubernetes-vagrant-coreos-cluster
 Turnkey **[Kubernetes](https://github.com/GoogleCloudPlatform/kubernetes)**
-cluster setup with **[Vagrant 1.8,6+](https://www.vagrantup.com)** and
+cluster setup with **[Vagrant 2.1.1+](https://www.vagrantup.com)** and
 **[CoreOS](https://coreos.com)**.
 
 If you're lazy, or in a hurry, jump to the [TL;DR](#tldr) section.
 
 ## Pre-requisites
 
- * **[Vagrant 1.8.6+](https://www.vagrantup.com)**
+ * **[Vagrant 2.1.1+](https://www.vagrantup.com)**
  * a supported Vagrant hypervisor:
  	* **[Virtualbox](https://www.virtualbox.org)** (the default)
  	* **[Parallels Desktop](http://www.parallels.com/eu/products/desktop/)**
@@ -127,20 +127,20 @@ Most aspects of your cluster setup can be customized with environment variables.
 
  - **KUBERNETES_VERSION** defines the specific kubernetes version being used.
 
-   Defaults to `1.9.4`.
-   Versions prior to `1.9.0` **may not work** with current cloud-configs and Kubernetes descriptors.
+   Defaults to `1.10.2`.
+   Versions prior to `1.10.0` **may not work** with current cloud-configs and Kubernetes descriptors.
 
  - **USE_KUBE_UI** defines whether to deploy or not the Kubernetes UI
 
    Defaults to `false`.
 
- - **DNS_PROVIDER** defines which DNS provider to use. Options are: `kube-dns` and `coredns`.
-
-   Defaults to `coredns`.
-
  - **AUTHORIZATION_MODE** setting this to `RBAC` enables RBAC for the kubernetes cluster.
 
    Defaults to `AlwaysAllow`.
+
+ - **CLUSTER_CIDR** defines the CIDR to be used for pod networking. This CIDR must not overlap with `10.100.0.0/16`.
+
+   Defaults to `10.244.0.0/16`.
 
 So, in order to start, say, a Kubernetes cluster with 3 worker nodes, 4GB of RAM and 4 vCPUs per node one just would run:
 
@@ -208,6 +208,37 @@ you need to get a scalable Elasticsearch cluster on top of Kubernetes in no
 time.
 
 ## Troubleshooting
+
+#### Vagrant displays a warning message when running!
+
+Vagrant 2.1 integrated support for triggers as a core functionality. However,
+this change is not compatible with the
+[`vagrant-triggers`](https://github.com/emyl/vagrant-triggers) community plugin
+we were and still are using. Since we require this plugin, Vagrant will show the
+following warning:
+
+```
+WARNING: Vagrant has detected the `vagrant-triggers` plugin. This plugin conflicts
+with the internal triggers implementation. Please uninstall the `vagrant-triggers`
+plugin and run the command again if you wish to use the core trigger feature. To
+uninstall the plugin, run the command shown below:
+
+  vagrant plugin uninstall vagrant-triggers
+
+Note that the community plugin `vagrant-triggers` and the core trigger feature
+in Vagrant do not have compatible syntax.
+
+To disable this warning, set the environment variable `VAGRANT_USE_VAGRANT_TRIGGERS`.
+```
+
+This warning is harmless and only means that we are using the community plugin
+instead of the core functionality. To disable it, set the
+`VAGRANT_USE_VAGRANT_TRIGGERS` environment variable to `false` before running
+`vagrant`:
+
+```
+$ VAGRANT_USE_VAGRANT_TRIGGERS=false NODES=2 vagrant up
+```
 
 #### I'm getting errors while waiting for Kubernetes master to become ready on a MacOS host!
 
