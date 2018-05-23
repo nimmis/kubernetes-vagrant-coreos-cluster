@@ -14,7 +14,8 @@ spec:
     spec:
       serviceAccountName: datadog-agent
       containers:
-      - image: datadog/agent:latest
+      - image: datadog/agent:latest # Agent builds: https://hub.docker.com/r/datadog/agent/tags/
+      #- image: datadog/agent-dev:latest # Agent-Dev builds: https://hub.docker.com/r/datadog/agent-dev/tags/
         imagePullPolicy: Always
         name: datadog-agent
         ports:
@@ -30,6 +31,7 @@ spec:
             # value: <YOUR_API_KEY>
             valueFrom:
               secretKeyRef:
+                # See secrets.yaml.example
                 name: dd-secrets
                 key: dd_api_key
           - name: DD_COLLECT_KUBERNETES_EVENTS
@@ -50,6 +52,14 @@ spec:
             value: "debug"
           - name: DD_KUBERNETES_POD_LABELS_AS_TAGS
             value: '{"label_to_get":"ian_test_tag"}'
+          - name: DD_APM_ENABLED
+            value: "true"
+        # Other variables
+          - name: ENV
+            valueFrom:
+              configMapKeyRef:
+                name: cm-datadog-confd
+                key: ENV_ENV
         # Other stuff
         resources:
           requests:

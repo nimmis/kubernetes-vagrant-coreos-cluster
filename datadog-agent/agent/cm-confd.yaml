@@ -4,6 +4,7 @@ metadata:
   name: cm-datadog-confd
   namespace: default
 data:
+  ENV_ENV: preprod
   logs.yaml: |-
     init_config:
     instances:
