@@ -1,0 +1,126 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: dd-agent-config
+  namespace: default
+data:
+  kubernetes-config: |-
+    init_config:
+    instances:
+    - port: 4194
+      enabled_gauges:
+      - filesystem.*
+      - memory.*
+      - network.tcp6.*   
+      collect_events: true
+      leader_candidate: true
+      # leader_lease_duration: 600
+      ##end
+  kubernetes-state-config: |-
+    ad_identifiers:
+    - kube-state-metrics
+
+    init_config:
+
+    instances:
+      - kube_state_url: http://%%host%%:%%port_0%%/metrics
+  goexpvar-config: |-
+    ad_identifiers:
+    - hawkular-openshift-agent-example-go-expvar
+
+    init_config:
+
+    instances:
+      - expvar_url: http://%%host%%:%%port_0%%/debug/vars
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: dd-agent
+  namespace: default
+spec:
+  template:
+    metadata:
+      labels:
+        app: dd-agent
+      name: dd-agent
+    spec:
+      serviceAccountName: datadog-agent
+      containers:
+      - image: datadog/docker-dd-agent
+      # - image: datadog/docker-dd-agent:12.5.5221 # Version pin
+        imagePullPolicy: Always
+        name: dd-agent
+        lifecycle:
+          postStart:
+            exec:
+              command: [ "/bin/sh", "-c", "ln -sf /opt/datadog-agent/agent/agent.py /usr/local/bin/agent" ]
+        ports:
+          - containerPort: 8125
+            name: dogstatsdport
+            protocol: UDP
+        env:
+          - name: API_KEY
+            # value: <YOUR_API_KEY>
+            valueFrom:
+              secretKeyRef:
+                # See secrets.yaml.example
+                name: dd-secrets
+                key: dd_api_key
+          - name: SD_BACKEND
+            value: docker
+          - name: DD_LOG_LEVEL
+            value: DEBUG
+          # DD Kubernetes
+          - name: KUBERNETES
+            value: "yes"
+          # - # Overriden by ConfigMap:dd-agent-config > kubernetes-config > collect_events
+          #   name: KUBERNETES_COLLECT_EVENTS 
+          #   value: "true"
+          # - # Overriden by ConfigMap:dd-agent-config > kubernetes-config > leader_candidate
+          #   name: KUBERNETES_LEADER_CANDIDATE
+          #   value: "true"
+          # - # Overriden by ConfigMap:dd-agent-config > kubernetes-config > leader_lease_duration
+          #   name: KUBERNETES_LEADER_LEASE_DURATION
+          #   value: "900"
+          # - # Overriden by ConfigMap:dd-agent-config > kubernetes-config > namespace_name_regexp
+          #   name: KUBERNETES_NAMESPACE_NAME_REGEX
+          #   value: ".*"
+          # - # Overriden by ConfigMap:dd-agent-config > kubernetes-config > collect_service_tags
+          #   name: KUBERNETES_COLLECT_SERVICE_TAGS
+          #   value: "true"
+          - name: KUBERNETES_KUBELET_HOST
+            valueFrom:
+              fieldRef:
+                fieldPath: status.hostIP
+        volumeMounts:
+          - name: dockersocket
+            mountPath: /var/run/docker.sock
+          - name: procdir
+            mountPath: /host/proc
+            readOnly: true
+          - name: cgroups
+            mountPath: /host/sys/fs/cgroup
+            readOnly: true
+          - name: dd-agent-config
+            mountPath: /conf.d
+      volumes:
+        - name: dockersocket
+          hostPath:
+            path: /var/run/docker.sock
+        - name: procdir
+          hostPath:
+            path: /proc
+        - name: cgroups
+          hostPath:
+            path: /sys/fs/cgroup
+        - name: dd-agent-config
+          configMap:
+            name: dd-agent-config
+            items:
+            - key: kubernetes-config
+              path: kubernetes.yaml
+            - key: kubernetes-state-config
+              path: auto_conf/kubernetes_state.yaml
+            - key: goexpvar-config
+              path: auto_conf/go_expvar.yaml

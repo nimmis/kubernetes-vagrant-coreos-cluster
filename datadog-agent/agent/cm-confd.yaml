@@ -1,0 +1,71 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-datadog-confd
+  namespace: default
+data:
+  ENV_ENV: preprod
+  logs.yaml: |-
+    init_config:
+    instances:
+    logs:
+    - type: file
+      path: /var/log/datadog/agent.log
+      service: monitoring
+      source: ddagent
+    - type: docker
+      service: web
+      source: kubernetes
+      label: jweb
+  # kubernetes-state-config: |-
+  #   ad_identifiers:
+  #   - kube-state-metrics
+  #   init_config:
+  #   instances:
+  #     - kube_state_url: http://%%host%%:%%port_0%%/metrics
+  goexpvar-config: |-
+    ad_identifiers:
+    - hawkular-openshift-agent-example-go-expvar
+    init_config:
+    instances:
+      - expvar_url: http://%%env_DD_KUBERNETES_KUBELET_HOST%%:%%port_0%%/debug/vars
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-datadog-yaml
+  namespace: default
+data:
+  datadog-kubernetes-yaml: |
+    ## Original content below copied from datadog-kubernetes.yaml
+    ## ===========
+    ## Provides autodetected defaults, for kubernetes environments,
+    ## please see datadog.yaml.example for all supported options
+
+    # Autodiscovery
+    listeners:
+      - name: kubelet
+
+    config_providers:
+    # The kubelet provider handles templates embedded in pod annotations, see
+    # https://docs.datadoghq.com/guides/autodiscovery/#template-source-kubernetes-pod-annotations
+    - name: kubelet
+      polling: true
+
+    ## Additional configuration parameters below
+    ## ==========
+    # kubernetes_kubelet_host: autodetected
+    kubernetes_http_kubelet_port: 10255
+    # kubernetes_https_kubelet_port: 10250
+    kubernetes_https_kubelet_port: 10255
+
+    #When using HTTPS, we verify the kubelet's certificate, you can tune this:
+    # kubelet_tls_verify: true
+    kubelet_client_ca: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    # proxy:
+    #   http: http(s)://user:password@proxy_for_http:port
+    #   https: http(s)://user:password@proxy_for_https:port
+    #   no_proxy:
+    #     - host1
+    #     - host2kind: ConfigMap
+    #
