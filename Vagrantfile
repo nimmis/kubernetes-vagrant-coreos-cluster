@@ -333,7 +333,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             if AUTHORIZATION_MODE == "RBAC"
               system "kubectl apply -f plugins/calico/calico-rbac.yaml"
             end
-            system "kubectl apply -f temp/calico.yaml"
+              system "kubectl apply -f temp/calico.yaml"
           end
 
           info "Configuring Kubernetes DNS..."
