@@ -7,4 +7,4 @@ temp/*
 synced_folders.yaml
 artifacts/*
 DD
-datadog-agent/agent*/sercret-datadog\.yaml
+datadog-agent/agent*/secrets-datadog\.yaml
