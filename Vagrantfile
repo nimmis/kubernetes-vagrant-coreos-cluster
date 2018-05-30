@@ -290,6 +290,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           end
           if res.is_a? Net::HTTPSuccess
             info "#{Time.now}: successfully deployed #{vmName}"
+            # system "kubectl set subject clusterrolebinding system:node --group=system:nodes"
           else
             info "#{Time.now}: failed to deploy #{vmName} within timeout count of #{BOX_TIMEOUT_COUNT}"
           end
