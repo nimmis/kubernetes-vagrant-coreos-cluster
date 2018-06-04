@@ -18,6 +18,12 @@ spec:
       #- image: datadog/agent-dev:latest # Agent-Dev builds: https://hub.docker.com/r/datadog/agent-dev/tags/
         imagePullPolicy: Always
         name: datadog-agent
+        livenessProbe:
+          exec:
+            command:
+            - ./probe.sh
+          initialDelaySeconds: 20
+          periodSeconds: 10
         ports:
           - containerPort: 8125
             name: dogstatsdport
@@ -50,15 +56,15 @@ spec:
         # DD Other variables
           - name: DD_LOG_LEVEL
             value: "debug"
-          - name: DD_KUBERNETES_POD_LABELS_AS_TAGS
-            value: '{"label_to_get":"ian_test_tag"}'
           - name: DD_APM_ENABLED
             value: "true"
-        # Other variables
+          - name: DD_KUBERNETES_POD_LABELS_AS_TAGS
+            value: '{"label_to_get":"my_label"}' # Line 11>> label_to_get:My_DDAgent_xyz turns into my_label:My_DDAgent_xyz
+        # Other env variables
           - name: ENV
             valueFrom:
               configMapKeyRef:
-                name: cm-datadog-confd
+                name: cm-datadog-env
                 key: ENV_ENV
         # Other stuff
         resources:
@@ -82,23 +88,20 @@ spec:
           - name: pointerdir
             mountPath: /opt/datadog-agent/run
         # DD conf.d and checks.d
-          - name: vol-datadog-confd
+          - # Example: Mount a volume
+            name: vol-datadog-confd
             mountPath: /conf.d
-          - name: file-datadog-kubernetes
-            mountPath: /etc/datadog-agent/datadog-kubernetes.yaml
-            subPath: datadog-kubernetes-yaml
-          # - name: vol-datadog-checksd
-          #   mountPath: /opt/datadog-agent/checks.d/kubelet.py
-          #   subPath: kubelet.py
+          - # Example: Custom check
+            name: vol-datadog-checksd
+            mountPath: /opt/datadog-agent/checks.d/hello.py
+            subPath: hello.py
+          # - # Example: Mount/overwrite a specific file
+          #   name: file-datadog-kubernetes
+          #   mountPath: /etc/datadog-agent/datadog-kubernetes.yaml
+          #   subPath: datadog-kubernetes-yaml
         # Others stuff
           - name: ssl-certs
             mountPath: /etc/kubernetes/ssl
-        livenessProbe:
-          exec:
-            command:
-            - ./probe.sh
-          initialDelaySeconds: 20
-          periodSeconds: 10
       volumes:
       # DD Default stuff
         - hostPath:
@@ -112,8 +115,10 @@ spec:
           name: cgroups
       # DD Log collection setup
         - name: pointerdir
-          hostPath:
-            path: /opt/datadog-agent/run
+          # hostPath:
+          #   path: /opt/datadog-agent/run
+          configMap:
+            name: datadogtoken
       # DD conf.d and checks.d
         - name: file-datadog-kubernetes
           configMap:
@@ -121,14 +126,14 @@ spec:
         - name: vol-datadog-confd
           configMap:
             name: cm-datadog-confd
-            items:
-              - key: logs.yaml
-                path: agentlogs.yaml
-              - key: goexpvar-config
-                path: go_expvar.d/auto_conf.yaml
-        # - name: vol-datadog-checksd
-        #   configMap:
-        #     name: ddcheck
+            # items:
+            #   - key: logs.yaml
+            #     path: agentlogs.yaml
+            #   - key: goexpvar.config
+            #     path: go_expvar.d/auto_conf.yaml
+        - name: vol-datadog-checksd
+          configMap:
+            name: ddcheck
       # Others stuff
         - name: ssl-certs
           hostPath:

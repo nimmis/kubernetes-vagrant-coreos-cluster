@@ -1,18 +1,30 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: cm-datadog-confd
+  name: cm-datadog-env
   namespace: default
 data:
   ENV_ENV: preprod
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-datadog-confd
+  namespace: default
+data:
+  hello.yaml: |
+    init_config:
+
+    instances:
+        [{}]
   logs.yaml: |-
     init_config:
     instances:
     logs:
-    - type: file
-      path: /var/log/datadog/agent.log
-      service: monitoring
-      source: ddagent
+    # - type: file
+    #   path: /var/log/datadog/agent.log
+    #   service: monitoring
+    #   source: ddagent
     - type: docker
       service: web
       source: kubernetes
@@ -23,7 +35,7 @@ data:
   #   init_config:
   #   instances:
   #     - kube_state_url: http://%%host%%:%%port_0%%/metrics
-  goexpvar-config: |-
+  goexpvar.config: |-
     ad_identifiers:
     - hawkular-openshift-agent-example-go-expvar
     init_config:
@@ -57,7 +69,7 @@ data:
     # kubernetes_kubelet_host: autodetected
     kubernetes_http_kubelet_port: 10255
     # kubernetes_https_kubelet_port: 10250
-    kubernetes_https_kubelet_port: 10255
+    kubernetes_https_kubelet_port: 10250
 
     #When using HTTPS, we verify the kubelet's certificate, you can tune this:
     # kubelet_tls_verify: true
