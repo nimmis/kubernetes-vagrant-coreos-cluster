@@ -9,6 +9,11 @@ spec:
   replicas: 3
   template:
     metadata:
+      annotations:
+        ad.datadoghq.com/web.check_names: '["http_check"]'
+        ad.datadoghq.com/web.init_configs: '[{}]'
+        ad.datadoghq.com/web.instances: '[{"name": "My web pod", "url": "http://%%host%%:%%port%%", timeout: 1}]'
+        # ad.datadoghq.com/web.logs: '[{"source": "webpod", "service": "webpod"}]'
       labels:
         jweb: jwebval
         name: web
