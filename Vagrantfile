@@ -277,7 +277,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
 
         kHost.trigger.after [:up] do
-          info "Waiting for Kubernetes master to become ready..."
+          info "Waiting for Kubernetes master [#{vmName}] to become ready..."
           j, uri, res = 0, URI("http://#{MASTER_IP}:8080"), nil
           loop do
             j += 1
@@ -367,7 +367,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
               end
             end
 
-            info "Kubernetes Dashboard will be available at http://#{MASTER_IP}:8080/ui/"
+            info "Kubernetes Dashboard deployed - Run 'kubectl cluster-info' to check the endpoint."
           end
         end
 
@@ -399,7 +399,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
 
         kHost.trigger.after [:up] do
-          info "Waiting for Kubernetes worker [node-%02d" % (i - 1) + "] to become ready..."
+          info "Waiting for Kubernetes worker [#{vmName}] to become ready..."
           j, uri, hasResponse = 0, URI("http://#{BASE_IP_ADDR}.#{i + 100}:10250"), false
           loop do
             j += 1
@@ -418,6 +418,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           else
             info "#{Time.now}: failed to deploy #{vmName} within timeout count of #{BOX_TIMEOUT_COUNT}"
           end
+        end
+      end
+      kHost.trigger.after [:up] do
+        info "================= DONE ====================="
+        if i == (NODES.to_i + 1)
+          system "kubectl cluster-info"
+          system "kubectl get nodes"
         end
       end
 
@@ -542,6 +549,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           sed -i"*" "s|__NAME__|#{vmName}|g" /tmp/openssl.cnf
           sed -i"*" "s|__NODE_IP__|#{BASE_IP_ADDR}.#{i+100}|g" /tmp/openssl.cnf
           sed -i"*" "s|__NODE_IP__|#{BASE_IP_ADDR}.#{i+100}|g" /tmp/make-certs.sh
+          sed -i"*" "s|__NAME__|#{vmName}|g" /tmp/make-certs.sh
           sed -i"*" "s|__MASTER_IP__|#{MASTER_IP}|g" /etc/kubernetes/node-kubeconfig.yaml
         EOF
       end
