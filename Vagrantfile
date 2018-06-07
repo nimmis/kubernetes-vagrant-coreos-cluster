@@ -366,8 +366,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 system "kubectl apply -f plugins/dashboard/dashboard-rbac.yaml"
               end
             end
-
-            info "Kubernetes Dashboard deployed - Run 'kubectl cluster-info' to check the endpoint."
           end
         end
 
@@ -421,10 +419,19 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
       end
       kHost.trigger.after [:up] do
-        info "================= DONE ====================="
         if i == (NODES.to_i + 1)
-          system "kubectl cluster-info"
+          puts "\033[1;36m=============== DONE ===============\033[0m\n\n"
           system "kubectl get nodes"
+          puts "\n"
+          system "kubectl cluster-info"
+
+          # "\033[#{colorseq}#{message}\033[0m"
+          puts "\n\033[1mNOTES:\033[0m\n"
+          puts "- If a node\'s status is \033[3mNotReady\033[0m, wait and keep checking with \'kubectl get node\'. This should not take more than a few minutes.\n"
+          puts "- You can use \033[33mHTTP://#{MASTER_IP}:8080/\033[0m for insecure access to the k8s apiserver. e.g."
+          puts "  Access \033[32mkubernetes-dashboard\033[0m via browser at \033[33mhttp://#{MASTER_IP}:8080/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy\033[0m\n  (choose \033[2mSkip\033[0m)\n\n"
+        else
+          puts "------------------------------------"
         end
       end
 
