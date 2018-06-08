@@ -427,7 +427,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       end
       kHost.trigger.after [:up] do
         if i == (NODES.to_i + 1)
-          puts "\033[1;36m" + ("=" * 22) +" DONE " + ("=" * 22) +"\033[0m\n\n"
+          puts "\033[1;36m" + ("=" * 40) +" DONE " + ("=" * 40) +"\033[0m\n\n"
           system "kubectl get nodes"
           puts "\n"
           system "kubectl cluster-info"
@@ -440,7 +440,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             puts "  (e.g) Access \033[32mkubernetes-dashboard\033[0m via browser at\n        \033[33mhttp://#{MASTER_IP}:8080/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy\033[0m\n        (choose \033[2mSkip\033[0m)\n\n"
           end
         else
-          puts "-" * 50
+          puts "-" * 80
         end
       end
 
