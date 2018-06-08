@@ -203,16 +203,18 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   hostname_master = "master"
   hostname_node = "node"
   (1..(NODES.to_i + 1)).each do |i|
+    vm_ip_addr = "#{BASE_IP_ADDR}.#{i + 100}"
     if i == 1
-      master_hostname = "#{hostname_prefix}#{hostname_master}"
+      master_hostname = "#{hostname_prefix}#{hostname_master}-%s" % [vm_ip_addr.gsub(".","-")]
       hostname = master_hostname
-      ETCD_SEED_CLUSTER = "#{hostname}=http://#{BASE_IP_ADDR}.#{i+100}:2380"
+      ETCD_SEED_CLUSTER = "#{hostname}=http://#{vm_ip_addr}:2380"
       cfg = MASTER_YAML
       memory = MASTER_MEM
       cpus = MASTER_CPUS
-      MASTER_IP = "#{BASE_IP_ADDR}.#{i + 100}"
+      MASTER_IP = "#{vm_ip_addr}"
     else
-      node_hostname = "#{hostname_prefix}#{hostname_node}-%02d" % (i - 1)
+      # node_hostname = "#{hostname_prefix}#{hostname_node}-%02d" % (i - 1)
+      node_hostname = "#{hostname_prefix}#{hostname_node}%02d-%s" % [(i - 1),vm_ip_addr.gsub(".","-")]
       hostname = node_hostname
       cfg = NODE_YAML
       memory = NODE_MEM
@@ -398,7 +400,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
         kHost.trigger.after [:up] do
           info "Waiting for Kubernetes worker [#{vmName}] to become ready..."
-          j, uri, hasResponse = 0, URI("http://#{BASE_IP_ADDR}.#{i + 100}:10250"), false
+          j, uri, hasResponse = 0, URI("http://#{vm_ip_addr}:10250"), false
           loop do
             j += 1
             begin
@@ -489,7 +491,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         end
       end
 
-      kHost.vm.network :private_network, ip: "#{BASE_IP_ADDR}.#{i + 100}"
+      kHost.vm.network :private_network, ip: "#{vm_ip_addr}"
 
       # you can override this in synced_folders.yaml
       kHost.vm.synced_folder ".", "/vagrant", disabled: true
@@ -554,8 +556,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
         kHost.vm.provision :shell, :privileged => true,
         inline: <<-EOF
           sed -i"*" "s|__NAME__|#{vmName}|g" /tmp/openssl.cnf
-          sed -i"*" "s|__NODE_IP__|#{BASE_IP_ADDR}.#{i+100}|g" /tmp/openssl.cnf
-          sed -i"*" "s|__NODE_IP__|#{BASE_IP_ADDR}.#{i+100}|g" /tmp/make-certs.sh
+          sed -i"*" "s|__NODE_IP__|#{vm_ip_addr}|g" /tmp/openssl.cnf
+          sed -i"*" "s|__NODE_IP__|#{vm_ip_addr}|g" /tmp/make-certs.sh
           sed -i"*" "s|__NAME__|#{vmName}|g" /tmp/make-certs.sh
           sed -i"*" "s|__MASTER_IP__|#{MASTER_IP}|g" /etc/kubernetes/node-kubeconfig.yaml
         EOF
