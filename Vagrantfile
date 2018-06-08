@@ -141,6 +141,8 @@ MOUNT_POINTS = YAML::load_file(File.join(File.dirname(__FILE__), "synced_folders
 # CLUSTER_CIDR is the CIDR used for pod networking
 CLUSTER_CIDR = ENV["CLUSTER_CIDR"] || "10.244.0.0/16"
 
+APPEND_HOSTIP = ENV['APPEND_HOSTIP'] || false
+
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # always use host timezone in VMs
   config.timezone.value = :host
@@ -205,7 +207,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   (1..(NODES.to_i + 1)).each do |i|
     vm_ip_addr = "#{BASE_IP_ADDR}.#{i + 100}"
     if i == 1
-      master_hostname = "#{hostname_prefix}#{hostname_master}-%s" % [vm_ip_addr.gsub(".","-")]
+      master_hostname = "#{hostname_prefix}#{hostname_master}"
       hostname = master_hostname
       ETCD_SEED_CLUSTER = "#{hostname}=http://#{vm_ip_addr}:2380"
       cfg = MASTER_YAML
@@ -213,12 +215,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       cpus = MASTER_CPUS
       MASTER_IP = "#{vm_ip_addr}"
     else
-      # node_hostname = "#{hostname_prefix}#{hostname_node}-%02d" % (i - 1)
-      node_hostname = "#{hostname_prefix}#{hostname_node}%02d-%s" % [(i - 1),vm_ip_addr.gsub(".","-")]
+      node_hostname = "#{hostname_prefix}#{hostname_node}%02d" % [(i - 1)]
       hostname = node_hostname
       cfg = NODE_YAML
       memory = NODE_MEM
       cpus = NODE_CPUS
+    end
+
+    if APPEND_HOSTIP
+      hostname << "-%s" % vm_ip_addr.gsub(".","-")
     end
 
     config.vm.define vmName = hostname do |kHost|
@@ -422,7 +427,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       end
       kHost.trigger.after [:up] do
         if i == (NODES.to_i + 1)
-          puts "\033[1;36m=============== DONE ===============\033[0m\n\n"
+          puts "\033[1;36m" + ("=" * 22) +" DONE " + ("=" * 22) +"\033[0m\n\n"
           system "kubectl get nodes"
           puts "\n"
           system "kubectl cluster-info"
@@ -435,7 +440,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
             puts "  (e.g) Access \033[32mkubernetes-dashboard\033[0m via browser at\n        \033[33mhttp://#{MASTER_IP}:8080/api/v1/namespaces/kube-system/services/https:kubernetes-dashboard:/proxy\033[0m\n        (choose \033[2mSkip\033[0m)\n\n"
           end
         else
-          puts "------------------------------------"
+          puts "-" * 50
         end
       end
 
