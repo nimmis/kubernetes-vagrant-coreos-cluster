@@ -12,9 +12,9 @@ spec:
       labels:
         name: expvar
       annotations:
-        # ad.datadoghq.com/expvar.check_names: '["go_expvar"]'
-        # ad.datadoghq.com/expvar.init_configs: '[{}]'
-        # ad.datadoghq.com/expvar.instances: '[{"expvar_url":"http://%%host%%:%%port%%/debug/vars"}]'
+        ad.datadoghq.com/expvar.check_names: '["go_expvar"]'
+        ad.datadoghq.com/expvar.init_configs: '[{}]'
+        ad.datadoghq.com/expvar.instances: '[{"expvar_url":"http://%%host%%:%%port%%/debug/vars"}]'
     spec:
       containers:
         - name: expvar

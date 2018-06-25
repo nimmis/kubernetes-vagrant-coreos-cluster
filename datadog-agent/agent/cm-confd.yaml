@@ -35,12 +35,12 @@ data:
   #   init_config:
   #   instances:
   #     - kube_state_url: http://%%host%%:%%port_0%%/metrics
-  goexpvar.config: |-
-    ad_identifiers:
-    - hawkular-openshift-agent-example-go-expvar
-    init_config:
-    instances:
-      - expvar_url: http://%%env_DD_KUBERNETES_KUBELET_HOST%%:%%port_0%%/debug/vars
+  # goexpvar.config: |-
+  #   ad_identifiers:
+  #   - hawkular-openshift-agent-example-go-expvar
+  #   init_config:
+  #   instances:
+  #     - expvar_url: http://%%env_DD_KUBERNETES_KUBELET_HOST%%:%%port_0%%/debug/vars
 ---
 kind: ConfigMap
 apiVersion: v1
