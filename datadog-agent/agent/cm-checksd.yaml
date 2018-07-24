@@ -1,7 +1,7 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: ddcheck
+  name: cm-datadog-checksd
   namespace: default
 data:
   hello.py: |-

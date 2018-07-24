@@ -32,7 +32,7 @@ spec:
             name: traceport
             protocol: TCP
         env:
-        # DD Default stuff
+          # DD Default stuff
           - name: DD_API_KEY
             # value: <YOUR_API_KEY>
             valueFrom:
@@ -50,22 +50,16 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: status.hostIP
-        # DD Log collection setup
-          - name: DD_LOGS_ENABLED
-            value: "true"
-        # DD Other variables
-          - name: DD_LOG_LEVEL
-            value: "debug"
-          - name: DD_APM_ENABLED
-            value: "true"
-          - name: DD_KUBERNETES_POD_LABELS_AS_TAGS
-            value: '{"label_to_get":"my_label"}' # Line 11>> label_to_get:My_DDAgent_xyz turns into my_label:My_DDAgent_xyz
-        # Other env variables
+          # Other env variables
           - name: ENV
             valueFrom:
               configMapKeyRef:
-                name: cm-datadog-env
-                key: ENV_ENV
+                name: cm-other-env
+                key: MY_ENV
+        # Other environment variables from ConfigMap cm-datadog-env
+        envFrom:
+          - configMapRef:
+              name: cm-datadog-env
         # Other stuff
         resources:
           requests:
@@ -75,7 +69,7 @@ spec:
             memory: "512Mi"
             cpu: "250m"
         volumeMounts:
-        # DD Default stuff
+          # DD Default stuff
           - name: dockersocket
             mountPath: /var/run/docker.sock
           - name: procdir
@@ -84,10 +78,10 @@ spec:
           - name: cgroups
             mountPath: /host/sys/fs/cgroup
             readOnly: true
-        # DD Log collection setup
+          # DD Log collection setup
           - name: pointerdir
             mountPath: /opt/datadog-agent/run
-        # DD conf.d and checks.d
+          # DD conf.d and checks.d
           - # Example: Mount a volume
             name: vol-datadog-confd
             mountPath: /conf.d
@@ -103,7 +97,7 @@ spec:
           - name: ssl-certs
             mountPath: /etc/kubernetes/ssl
       volumes:
-      # DD Default stuff
+        # DD Default stuff
         - hostPath:
             path: /var/run/docker.sock
           name: dockersocket
@@ -113,28 +107,26 @@ spec:
         - hostPath:
             path: /sys/fs/cgroup
           name: cgroups
-      # DD Log collection setup
+        # DD Log collection setup
         - name: pointerdir
-          # hostPath:
-          #   path: /opt/datadog-agent/run
-          configMap:
-            name: datadogtoken
-      # DD conf.d and checks.d
+          hostPath:
+            path: /var/run/datadog-agent.run
+          # configMap:
+          #   name: datadogtoken
+        # DD conf.d and checks.d
         - name: file-datadog-kubernetes
           configMap:
             name: cm-datadog-yaml
         - name: vol-datadog-confd
           configMap:
             name: cm-datadog-confd
-            # items:
+            # items:  # If you want to be more specific
             #   - key: logs.yaml
             #     path: agentlogs.yaml
-            #   - key: goexpvar.config
-            #     path: go_expvar.d/auto_conf.yaml
         - name: vol-datadog-checksd
           configMap:
-            name: ddcheck
-      # Others stuff
+            name: cm-datadog-checksd
+        # Others stuff
         - name: ssl-certs
           hostPath:
             path: /etc/kubernetes/ssl

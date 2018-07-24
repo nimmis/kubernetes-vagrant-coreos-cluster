@@ -1,0 +1,24 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-datadog-env
+  namespace: default
+data:
+  # DD Log collection setup
+  DD_LOGS_ENABLED: "true"
+  # DD APM setup
+  DD_APM_ENABLED: "true"
+  # DD Other variables. 
+  # Look for anything within BindEnv() or BindEnvAndSetDefault(), then set using DD_<config_option>
+  # Reference: https://github.com/DataDog/datadog-agent/blob/master/pkg/config/config.go#L267
+  DD_LOG_LEVEL: "debug"
+  DD_KUBERNETES_POD_LABELS_AS_TAGS: '{"label_to_get":"my_label"}' # See ds-agent:line 11>> label_to_get:My_DDAgent_xyz turns into my_label:My_DDAgent_xyz
+  DD_DOGSTATSD_SO_RCVBUF: "2048"
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-other-env
+  namespace: default
+data:
+  MY_ENV: preprod

@@ -1,14 +1,6 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: cm-datadog-env
-  namespace: default
-data:
-  ENV_ENV: preprod
----
-kind: ConfigMap
-apiVersion: v1
-metadata:
   name: cm-datadog-confd
   namespace: default
 data:
@@ -21,14 +13,14 @@ data:
     init_config:
     instances:
     logs:
-    # - type: file
-    #   path: /var/log/datadog/agent.log
-    #   service: monitoring
-    #   source: ddagent
-    - type: docker
-      service: web
-      source: kubernetes
-      label: jweb
+    - type: file
+      path: /var/log/datadog/agent.log
+      service: monitoring
+      source: ddagent
+    # - type: docker
+    #   service: web
+    #   source: kubernetes
+    #   label: jweb
   # kubernetes-state-config: |-
   #   ad_identifiers:
   #   - kube-state-metrics
