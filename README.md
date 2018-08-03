@@ -9,9 +9,9 @@ If you're lazy, or in a hurry, jump to the [TL;DR](#tldr) section.
 
  * **[Vagrant 2.1.1+](https://www.vagrantup.com)**
  * a supported Vagrant hypervisor:
- 	* **[Virtualbox](https://www.virtualbox.org)** (the default)
- 	* **[Parallels Desktop](http://www.parallels.com/eu/products/desktop/)**
- 	* **[VMware Fusion](http://www.vmware.com/products/fusion)** or **[VMware Workstation](http://www.vmware.com/products/workstation)**
+  * **[Virtualbox](https://www.virtualbox.org)** (the default)
+  * **[Parallels Desktop](http://www.parallels.com/eu/products/desktop/)**
+  * **[VMware Fusion](http://www.vmware.com/products/fusion)** or **[VMware Workstation](http://www.vmware.com/products/workstation)**
 
 ### MacOS X
 
@@ -87,7 +87,19 @@ If you want to use Docker private repositories look for **DOCKERCFG** bellow.
 ## Customization
 ### Environment variables
 Most aspects of your cluster setup can be customized with environment variables. Right now the available ones are:
+ - **HTTP_PROXY** sets http proxy address.  
 
+   Defaults to **$HTTP_PROXY of host machine if it exists**.   
+
+   You need customing this proxy setting on VMs when you have to face gfw with tools like shadowsocks, privoxy on host machine, because Vagrantfile uses proxy setting on host machine default,this setting might be not right to VMs,  it would lead to internet disconnection of VMs. If you have the problem, you can refer to https://www.linuxbabe.com/virtualbox/how-to-access-host-services-from-a-virtualbox-guest-os for customing this setting.
+
+  - **HTTPS_PROXY**  
+  
+    like **HTTP_PROXY**  
+
+  - **NO_PROXY**  
+
+    like **HTTP_PROXY**  
  - **NODES** sets the number of nodes (workers).
 
    Defaults to **2**.
@@ -127,7 +139,7 @@ Most aspects of your cluster setup can be customized with environment variables.
 
  - **KUBERNETES_VERSION** defines the specific kubernetes version being used.
 
-   Defaults to `1.10.2`.
+   Defaults to `1.10.5`.
    Versions prior to `1.10.0` **may not work** with current cloud-configs and Kubernetes descriptors.
 
  - **USE_KUBE_UI** defines whether to deploy or not the Kubernetes UI
@@ -249,6 +261,14 @@ error: unable to load file "temp/dns-controller.yaml": unable to connect to a se
 error: no objects passed to create
 ```
 You probably have a pre-existing Kubernetes config file on your system at `~/.kube/config`. Delete or move that file and try again.
+
+#### I'm getting errors while waiting for mounting to /vagrant on a CentOS 7 host!
+
+If you see something like this in the log:
+```
+mount.nfs: Connection timed out.
+```
+It might be caused by firewall, you can check if firewall is active with 'systemctl status firewalld',  if yes, you can use 'systemctl stop firewalld' simply.
 
 #### Kubernetes Dashboard asks for either a Kubeconfig or token!
 

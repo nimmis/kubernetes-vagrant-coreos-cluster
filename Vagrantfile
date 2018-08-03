@@ -50,7 +50,7 @@ required_plugins.push("vagrant-timezone")
 required_plugins.each do |plugin|
   need_restart = false
   unless Vagrant.has_plugin? plugin
-    system "vagrant plugin install #{plugin}"
+    system("vagrant plugin install #{plugin}", :chdir=>"/tmp") || exit!
     need_restart = true
   end
   exec "vagrant #{ARGV.join(" ")}" if need_restart
@@ -117,7 +117,7 @@ NODE_CPUS = ENV['NODE_CPUS'] || 1
 
 BASE_IP_ADDR = ENV["BASE_IP_ADDR"] || "172.17.8"
 
-DNS_PROVIDER = ENV['DNS_PROVIDER'] || "kube-dns" # default: coredns
+# DNS_PROVIDER = ENV['DNS_PROVIDER'] || "kube-dns" # default: coredns
 DNS_DOMAIN = ENV['DNS_DOMAIN'] || "cluster.local"
 
 SERIAL_LOGGING = (ENV["SERIAL_LOGGING"].to_s.downcase == "true")
@@ -125,6 +125,7 @@ GUI = (ENV["GUI"].to_s.downcase == "true")
 USE_KUBE_UI = ENV['USE_KUBE_UI'] || true
 
 BOX_TIMEOUT_COUNT = ENV["BOX_TIMEOUT_COUNT"] || 50
+BOX_TIMEOUT_COUNT = BOX_TIMEOUT_COUNT.to_i
 
 if enable_proxy
   HTTP_PROXY = ENV["HTTP_PROXY"] || ENV["http_proxy"]
