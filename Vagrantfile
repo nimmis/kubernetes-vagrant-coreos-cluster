@@ -50,7 +50,7 @@ required_plugins.push("vagrant-timezone")
 required_plugins.each do |plugin|
   need_restart = false
   unless Vagrant.has_plugin? plugin
-    system "vagrant plugin install #{plugin}"
+    system("vagrant plugin install #{plugin}", :chdir=>"/tmp") || exit!
     need_restart = true
   end
   exec "vagrant #{ARGV.join(" ")}" if need_restart
@@ -84,7 +84,7 @@ DOCKERCFG = File.expand_path(ENV["DOCKERCFG"] || "~/.dockercfg")
 
 DOCKER_OPTIONS = ENV["DOCKER_OPTIONS"] || ""
 
-KUBERNETES_VERSION = ENV["KUBERNETES_VERSION"] || "1.10.2"
+KUBERNETES_VERSION = ENV["KUBERNETES_VERSION"] || "1.10.5"
 
 CHANNEL = ENV["CHANNEL"] || "alpha"
 
@@ -124,6 +124,7 @@ GUI = (ENV["GUI"].to_s.downcase == "true")
 USE_KUBE_UI = ENV["USE_KUBE_UI"] || false
 
 BOX_TIMEOUT_COUNT = ENV["BOX_TIMEOUT_COUNT"] || 50
+BOX_TIMEOUT_COUNT = BOX_TIMEOUT_COUNT.to_i
 
 if enable_proxy
   HTTP_PROXY = ENV["HTTP_PROXY"] || ENV["http_proxy"]
@@ -260,6 +261,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           system "chmod +x temp/setup"
 
           system "#{__dir__}/plugins/dns/coredns/deploy.sh 10.100.0.10/24 #{DNS_DOMAIN} #{__dir__}/plugins/dns/coredns/coredns.yaml.sed > #{__dir__}/temp/coredns-deployment.yaml"
+
+          # Replace __CLUSTER_CIDR__ in calico.yaml.tmpl with the value of CLUSTER_CIDR
+          calicoTmpl = File.read("#{__dir__}/plugins/calico/calico.yaml.tmpl")
+          calicoTmpl = calicoTmpl.gsub("__CLUSTER_CIDR__", CLUSTER_CIDR)
+          File.open("#{__dir__}/temp/calico.yaml", "wb") do |f|
+            f.write(calicoTmpl)
+          end
         end
 
         kHost.trigger.after [:up, :resume] do
@@ -309,13 +317,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           end
 
           info "Configuring Calico..."
-
-          # Replace __CLUSTER_CIDR__ in calico.yaml.tmpl with the value of CLUSTER_CIDR
-          calicoTmpl = File.read("#{__dir__}/plugins/calico/calico.yaml.tmpl")
-          calicoTmpl = calicoTmpl.gsub("__CLUSTER_CIDR__", CLUSTER_CIDR)
-          File.open("#{__dir__}/temp/calico.yaml", "wb") do |f|
-            f.write(calicoTmpl)
-          end
 
           # Install Calico
           if OS.windows?
