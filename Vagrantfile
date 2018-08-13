@@ -33,7 +33,13 @@ module OS
   end
 end
 
-required_plugins = %w(vagrant-triggers)
+required_plugins = %w(vagrant-triggers vagrant-timezone)
+
+# Set to false if you do NOT intend to use Kubernetes Helm on this cluster.
+use_helm = ENV["USE_HELM"] || true
+if use_helm
+  required_plugins.push("vagrant-hostmanager")
+end
 
 # check either 'http_proxy' or 'HTTP_PROXY' environment variable
 enable_proxy = !(ENV["HTTP_PROXY"] || ENV["http_proxy"] || "").empty?
@@ -44,8 +50,6 @@ end
 if OS.windows?
   required_plugins.push("vagrant-winnfsd")
 end
-
-required_plugins.push("vagrant-timezone")
 
 required_plugins.each do |plugin|
   need_restart = false
@@ -202,6 +206,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.proxy.enabled = {docker: false}
   end
 
+  if Vagrant.has_plugin?("vagrant-hostmanager") && use_helm
+    config.hostmanager.enabled = true
+    config.hostmanager.manage_host = true
+    config.hostmanager.manage_guest = true
+  end
   hostname_prefix = "k8s-"
   hostname_master = "master"
   hostname_node = "node"
