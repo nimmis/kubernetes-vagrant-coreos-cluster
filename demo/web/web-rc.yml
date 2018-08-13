@@ -10,10 +10,16 @@ spec:
   template:
     metadata:
       annotations:
-        ad.datadoghq.com/web.check_names: '["http_check"]'
-        ad.datadoghq.com/web.init_configs: '[{}]'
-        ad.datadoghq.com/web.instances: '[{"name": "My web pod", "url": "http://%%host%%:%%port%%", timeout: 1}]'
-        # ad.datadoghq.com/web.logs: '[{"source": "webpod", "service": "webpod"}]'
+        ## Sample autodiscovery annotations for Datadog Agent v6
+        # ad.datadoghq.com/web.check_names: '["http_check"]'
+        # ad.datadoghq.com/web.init_configs: '[{}]'
+        # ad.datadoghq.com/web.instances: '[{"name": "My web pod", "url": "http://%%host%%:%%port%%", timeout: 1}]'
+        ## 
+        ## Sample autodiscovery annotations for Datadog Agent v5
+        # service-discovery.datadoghq.com/web.check_names: '["http_check"]'
+        # service-discovery.datadoghq.com/web.init_configs: '[{}]'
+        # service-discovery.datadoghq.com/web.instances: '[{"name": "My web pod", "url": "http://%%host%%:%%port%%", timeout: 1}]'
+        ## 
       labels:
         jweb: jwebval
         name: web
