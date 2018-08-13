@@ -14,6 +14,7 @@ data:
   DD_LOG_LEVEL: "debug"
   DD_KUBERNETES_POD_LABELS_AS_TAGS: '{"label_to_get":"my_label"}' # See ds-agent:line 11>> label_to_get:My_DDAgent_xyz turns into my_label:My_DDAgent_xyz
   DD_DOGSTATSD_SO_RCVBUF: "2048"
+  DD_DOGSTATSD_NON_LOCAL_TRAFFIC: "true"
 ---
 kind: ConfigMap
 apiVersion: v1
