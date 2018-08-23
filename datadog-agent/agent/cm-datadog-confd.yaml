@@ -17,6 +17,9 @@ data:
       path: /var/log/datadog/agent.log
       service: monitoring
       source: ddagent
+      tags:
+       - env:staging
+       - project:x
     # - type: docker
     #   service: web
     #   source: kubernetes
