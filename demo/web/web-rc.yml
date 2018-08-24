@@ -23,6 +23,7 @@ spec:
       labels:
         jweb: jwebval
         name: web
+        log_jweb: ""
     spec:
       containers:
         - name: web

@@ -5,6 +5,7 @@ metadata:
   labels:
     name: jweb
     app: demo
+    log_jweb: ""
   annotations:
     ad.datadoghq.com/web.check_names: '["http_check"]'
     ad.datadoghq.com/web.init_configs: '[{}]'
