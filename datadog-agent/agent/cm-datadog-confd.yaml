@@ -22,20 +22,23 @@ data:
     # - type: docker
     #   service: web
     #   source: kubernetes
-    #   label: log_jweb # See demo/web pod labels
+    #   ## Choose between image/label/name
+    #   # image: web
+    #   # label: jweb # See demo/web pod labels
+    #   # name: nameweb
     #   log_processing_rules:
     #   - type: multi_line
     #     name: log_start_with_date
     #     pattern: \d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])
 
-  # kubernetes-state-config: |
+  # kubernetes_state.yaml: |+
   #   ad_identifiers:
   #   - kube-state-metrics
   #   init_config:
   #   instances:
   #     - kube_state_url: http://%%host%%:%%port_0%%/metrics
   
-  # goexpvar.config: |
+  # goexpvar.yaml: |
   #   ad_identifiers:
   #   - hawkular-openshift-agent-example-go-expvar
   #   init_config:
