@@ -1,11 +1,14 @@
-apiVersion: v1
-kind: ReplicationController
+apiVersion: apps/v1beta2
+kind: Deployment
 metadata:
   name: web
   labels:
     name: web
     app: demo
 spec:
+  selector:
+    matchLabels:
+      name: web
   replicas: 3
   template:
     metadata:
@@ -21,12 +24,11 @@ spec:
         # service-discovery.datadoghq.com/web.instances: '[{"name": "My web pod", "url": "http://%%host%%:%%port%%", timeout: 1}]'
         ## 
       labels:
-        jweb: jwebval
+        jweb: ""
         name: web
-        log_jweb: ""
     spec:
       containers:
-        - name: web
+        - name: nameweb
           image: janakiramm/web
           ports:
             - containerPort: 5000
