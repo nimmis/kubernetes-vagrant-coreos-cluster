@@ -73,7 +73,7 @@ spec:
             value: DEBUG
           # DD Kubernetes
           - name: KUBERNETES
-            value: "yes"
+            value: "true"
           # - # Overriden by ConfigMap:dd-agent-config > kubernetes-config > collect_events
           #   name: KUBERNETES_COLLECT_EVENTS 
           #   value: "true"

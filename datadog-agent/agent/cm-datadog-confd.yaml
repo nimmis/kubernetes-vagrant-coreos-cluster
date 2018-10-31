@@ -31,6 +31,13 @@ data:
     #     name: log_start_with_date
     #     pattern: \d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])
 
+  # istio.yaml: |+
+  #   init_config:
+  #   instances:
+  #     - istio_mesh_endpoint: http://istio-telemetry.istio-system:42422/metrics
+  #       mixer_endpoint: http://istio-telemetry.istio-system:9093/metrics
+  #       send_histograms_buckets: true
+  
   # kubernetes_state.yaml: |+
   #   ad_identifiers:
   #   - kube-state-metrics
