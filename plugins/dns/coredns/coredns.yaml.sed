@@ -60,7 +60,7 @@ data:
         kubernetes CLUSTER_DOMAIN SERVICE_CIDR {
           pods insecure
         }
-        prometheus
+        prometheus :9153
         proxy . /etc/resolv.conf
         cache 30
     }
@@ -138,6 +138,9 @@ kind: Service
 metadata:
   name: coredns
   namespace: kube-system
+  annotations:
+    prometheus.io/port: "9153"
+    prometheus.io/scrape: "true"
   labels:
     k8s-app: coredns
     kubernetes.io/cluster-service: "true"
