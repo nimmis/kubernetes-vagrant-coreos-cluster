@@ -84,17 +84,19 @@ spec:
           - name: pointerdir
             mountPath: /opt/datadog-agent/run
           # DD conf.d and checks.d
-          - # Example: Mount a volume
+          - # Example: Mount a volume. Each data item will be created as a file.
             name: vol-datadog-confd
             mountPath: /conf.d
           - # Example: Custom check
             name: vol-datadog-checksd
             mountPath: /opt/datadog-agent/checks.d/hello.py
             subPath: hello.py
-          # - # Example: Mount/overwrite a specific file
-          #   name: file-datadog-kubernetes
-          #   mountPath: /etc/datadog-agent/datadog-kubernetes.yaml
-          #   subPath: datadog-kubernetes-yaml
+          - name: emptydir
+            mountPath: /etc/datadog-agent/conf.d/disk.d/
+          - # Example: Mount/overwrite a specific file
+            name: file-datadog-kubernetes
+            mountPath: /etc/datadog-agent/datadog-kubernetes.yaml
+            subPath: datadog-kubernetes-yaml
         # Others stuff
           - name: ssl-certs
             mountPath: /etc/kubernetes/ssl
@@ -132,3 +134,5 @@ spec:
         - name: ssl-certs
           hostPath:
             path: /etc/kubernetes/ssl
+        - name: emptydir
+          emptyDir: {}
