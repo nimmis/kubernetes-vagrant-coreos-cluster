@@ -19,9 +19,9 @@ data:
   DD_KUBERNETES_POD_LABELS_AS_TAGS: '{"label_to_get":"kube_tag","pod_status":"pod_status"}' 
   DD_KUBERNETES_POD_ANNOTATIONS_AS_TAGS: '{"anntn_to_get":"kube_antn"}'
 
-  # To include/exclude from Metric Collection (Docker integration) and Logs Collection.
-  DD_AC_EXCLUDE: "image:.*"
-  DD_AC_INCLUDE: "name:datadog-agent"
+  # To include/exclude from Metric Collection (Docker integration), Logs Collection, and Autodiscovery.
+  # DD_AC_EXCLUDE: "image:.*"
+  # DD_AC_INCLUDE: "name:datadog-agent"
 
   # additional host tags
   DD_TAGS: "cluster:vagrant"
