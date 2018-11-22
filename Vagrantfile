@@ -84,7 +84,7 @@ DOCKERCFG = File.expand_path(ENV["DOCKERCFG"] || "~/.dockercfg")
 
 DOCKER_OPTIONS = ENV["DOCKER_OPTIONS"] || ""
 
-KUBERNETES_VERSION = ENV["KUBERNETES_VERSION"] || "1.10.5"
+KUBERNETES_VERSION = ENV["KUBERNETES_VERSION"] || "1.10.9"
 
 CHANNEL = ENV["CHANNEL"] || "alpha"
 
@@ -121,10 +121,9 @@ DNS_DOMAIN = ENV["DNS_DOMAIN"] || "cluster.local"
 
 SERIAL_LOGGING = (ENV["SERIAL_LOGGING"].to_s.downcase == "true")
 GUI = (ENV["GUI"].to_s.downcase == "true")
-USE_KUBE_UI = ENV["USE_KUBE_UI"] || false
+USE_KUBE_UI = (ENV["USE_KUBE_UI"].to_s.downcase == "true") || false
 
-BOX_TIMEOUT_COUNT = ENV["BOX_TIMEOUT_COUNT"] || 50
-BOX_TIMEOUT_COUNT = BOX_TIMEOUT_COUNT.to_i
+BOX_TIMEOUT_COUNT = (ENV["BOX_TIMEOUT_COUNT"] || 50).to_i
 
 if enable_proxy
   HTTP_PROXY = ENV["HTTP_PROXY"] || ENV["http_proxy"]
@@ -260,7 +259,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
           # give setup file executable permissions
           system "chmod +x temp/setup"
 
-          system "#{__dir__}/plugins/dns/coredns/deploy.sh 10.100.0.10/24 #{DNS_DOMAIN} #{__dir__}/plugins/dns/coredns/coredns.yaml.sed > #{__dir__}/temp/coredns-deployment.yaml"
+          system "#{__dir__}/plugins/coredns/deploy.sh 10.100.0.10/24 #{DNS_DOMAIN} #{__dir__}/plugins/coredns/coredns.yaml.sed > #{__dir__}/temp/coredns-deployment.yaml"
 
           # Replace __CLUSTER_CIDR__ in calico.yaml.tmpl with the value of CLUSTER_CIDR
           calicoTmpl = File.read("#{__dir__}/plugins/calico/calico.yaml.tmpl")
