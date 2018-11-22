@@ -1,14 +1,11 @@
-apiVersion: apps/v1beta2
-kind: Deployment
+apiVersion: v1
+kind: ReplicationController
 metadata:
   name: web
   labels:
     name: web
     app: demo
 spec:
-  selector:
-    matchLabels:
-      name: web
   replicas: 3
   template:
     metadata:
@@ -16,19 +13,20 @@ spec:
         ## Sample autodiscovery annotations for Datadog Agent v6
         # ad.datadoghq.com/web.check_names: '["http_check"]'
         # ad.datadoghq.com/web.init_configs: '[{}]'
-        # ad.datadoghq.com/web.instances: '[{"name": "My web pod", "url": "http://%%host%%:%%port%%", timeout: 1}]'
+        # ad.datadoghq.com/web.instances: '[{"name": "My web pod", "url": "http://%%host%%:%%port%%", "timeout": 1}]'
         ## 
         ## Sample autodiscovery annotations for Datadog Agent v5
         # service-discovery.datadoghq.com/web.check_names: '["http_check"]'
         # service-discovery.datadoghq.com/web.init_configs: '[{}]'
-        # service-discovery.datadoghq.com/web.instances: '[{"name": "My web pod", "url": "http://%%host%%:%%port%%", timeout: 1}]'
+        # service-discovery.datadoghq.com/web.instances: '[{"name": "My web pod", "url": "http://%%host%%:%%port%%", "timeout": 1}]'
         ## 
       labels:
-        jweb: ""
+        jweb: jwebval
         name: web
+        datadogJavaLogParser: ""
     spec:
       containers:
-        - name: nameweb
+        - name: web
           image: janakiramm/web
           ports:
             - containerPort: 5000

@@ -1,0 +1,73 @@
+apiVersion: "v1"
+kind: Pod
+metadata:
+  name: po-redis-standalone
+  labels:
+    name: redis
+    app: demo
+spec:
+  containers:
+    - name: redis
+      image: redis:latest
+      ports:
+        - containerPort: 6379
+          name: resdisport
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  labels:
+    name: svc-redis-standalone
+    name: redis
+    app: demo  
+spec:
+  ports:
+  - port: 6379
+    name: redis
+    targetPort: resdisport
+  selector:
+    name: redis
+    app: demo
+---
+apiVersion: "v1"
+kind: Pod
+metadata:
+  name: po-web-standalone
+  labels:
+    jweb: ""
+    name: jweb
+    app: demo
+  annotations:
+    ad.datadoghq.com/nameweb.check_names: '["http_check"]'
+    ad.datadoghq.com/nameweb.init_configs: '[{}]'
+    ad.datadoghq.com/nameweb.instances: '[{"min_collection_interval":5,"name": "JWeb Pod", "url": "http://%%host%%:%%port%%", "timeout": 1}]'
+    ad.datadoghq.com/nameweb.logs: '[{"source":"kubernetes","service":"frontend","log_processing_rules":[{"type":"mask_sequences","name":"mask_credit_cards","replace_placeholder":"[maskmaskmask]","pattern":"HTTP\\/\\d"}]}]'
+    service-discovery.datadoghq.com/nameweb.check_names: '["http_check"]'
+    service-discovery.datadoghq.com/nameweb.init_configs: '[{}]'
+    service-discovery.datadoghq.com/nameweb.instances: '[{"min_collection_interval":5,"name": "JWeb Pod v5", "url": "http://%%host%%:%%port%%", "timeout": 1}]'
+spec:
+  containers:
+    - name: nameweb
+      image: janakiramm/web
+      ports:
+        - containerPort: 5000
+          name: http
+          protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-web-standalone
+  labels:
+    name: web
+    app: demo
+spec:
+  selector:
+    name: nameweb 
+  # type: NodePort
+  ports:
+   - port: 80
+     targetPort: http
+     protocol: TCP

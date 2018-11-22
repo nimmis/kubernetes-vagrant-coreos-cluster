@@ -1,0 +1,12 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-datadog-checksd
+  namespace: default
+data:
+  hello.py: |+
+    __version__ = '1.0.0'
+    from checks import AgentCheck
+    class HelloCheck(AgentCheck):
+        def check(self, instance):
+            self.gauge('hello.world', 1)

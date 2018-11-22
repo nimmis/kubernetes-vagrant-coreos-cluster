@@ -1,0 +1,9 @@
+# For resilient event colleciont
+# See https://github.com/DataDog/datadog-agent/tree/master/Dockerfiles/agent#event-collection
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: datadogtoken
+  namespace: default
+data:
+  event.tokenKey: "0"

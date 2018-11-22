@@ -9,7 +9,7 @@ spec:
   ports:
   - port: 6379
     name: redis
-    targetPort: 6379
+    targetPort: resdisport
   selector:
     name: redis
     app: demo

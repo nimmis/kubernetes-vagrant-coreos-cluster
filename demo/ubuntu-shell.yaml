@@ -4,22 +4,34 @@ metadata:
   name: ubuntu-shell
 spec:
   containers:
-    - name: ubuntu
-      image: ubuntu
-      args: [bash, -c, 'for ((i = 0; ; i++)); do echo "$i: $(date)"; sleep 100; done']
-      lifecycle:
-        postStart:
-          exec:
-            command:
-              - "sh"
-              - "-c"
-              - >
-                apt update;
-                apt install -y curl ngrep net-tools netcat;
-      env:
-        - name: STATSD_HOST
-          valueFrom:
-            fieldRef:
-              fieldPath: status.hostIP
-        - name: STATSD_PORT
-          value: "8125"
+  - name: ubuntu
+    image: ubuntu
+    args: [bash, -c, 'for ((i = 0; ; i++)); do echo "$i: $(date)"; sleep 100; done']
+    env:
+    - name: KUBELET_HOST
+      valueFrom:
+        fieldRef:
+          fieldPath: status.hostIP
+    lifecycle:
+      postStart:
+        exec:
+          command:
+            - "sh"
+            - "-c"
+            - >
+              apt update;
+              apt install -y curl ngrep net-tools netcat;
+    ports:
+      - containerPort: 80
+        name: http
+        protocol: TCP
+    volumeMounts:
+    # Other stuff
+      - name: ssl-certs
+        mountPath: /etc/kubernetes/ssl
+  volumes:
+    # Other stuff
+    - name: ssl-certs
+      hostPath:
+        path: /etc/kubernetes/ssl
+          
