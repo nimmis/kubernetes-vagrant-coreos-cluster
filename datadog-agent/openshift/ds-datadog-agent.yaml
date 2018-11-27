@@ -77,7 +77,7 @@ spec:
           - # Example: Custom check
             name: vol-datadog-checksd
             mountPath: /opt/datadog-agent/checks.d/hello.py
-            subPath: hello.py
+            # subPath: hello.py
           - name: emptydir
             mountPath: /etc/datadog-agent/conf.d/disk.d/
       #     - # Example: Mount/overwrite a specific file

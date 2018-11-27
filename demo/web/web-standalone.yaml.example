@@ -69,5 +69,5 @@ spec:
   # type: NodePort
   ports:
    - port: 80
-     targetPort: http
+     targetPort: 5000
      protocol: TCP
