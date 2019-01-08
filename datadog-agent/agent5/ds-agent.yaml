@@ -104,7 +104,10 @@ spec:
             readOnly: true
           - name: dd-agent-config
             mountPath: /conf.d
+          - name: emptydir
+            mountPath: /etc/datadog-agent/conf.d/disk.d/
       volumes:
+        - { name: emptydir, emptyDir: {}}
         - name: dockersocket
           hostPath:
             path: /var/run/docker.sock
