@@ -9,6 +9,13 @@ data:
 
     instances:
         [{}]
+  http_check.yaml: |+
+    init_config:
+
+    instances:
+    - name: "Example Website"
+      url: "http://example.com"
+      collect_response_time: true
   logs.yaml: |+
     logs:
     - type: file

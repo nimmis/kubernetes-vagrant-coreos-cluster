@@ -77,16 +77,20 @@ spec:
           - # Example: Custom check
             name: vol-datadog-checksd
             mountPath: /opt/datadog-agent/checks.d/hello.py
-            # subPath: hello.py
+            subPath: hello.py
           - name: emptydir
             mountPath: /etc/datadog-agent/conf.d/disk.d/
-      #     - # Example: Mount/overwrite a specific file
-      #       name: file-datadog-kubernetes
-      #       mountPath: /etc/datadog-agent/datadog-kubernetes.yaml
-      #       subPath: datadog-kubernetes-yaml
+          - # Example: Mount/overwrite a specific file
+            name: file-datadog-kubernetes
+            mountPath: /etc/datadog-agent/datadog-kubernetes.yaml
+            subPath: datadog-kubernetes-yaml
       #   # Others stuff
       #     - name: ssl-certs
       #       mountPath: /etc/kubernetes/ssl
+          - # Example: Custom check
+            name: openshift-environment
+            mountPath: /etc/environment
+            subPath: environment
       volumes:
         # DD Default stuff
         - hostPath:
@@ -121,5 +125,8 @@ spec:
       #   - name: ssl-certs
       #     hostPath:
       #       path: /etc/kubernetes/ssl
+        - name: openshift-environment
+          configMap:
+            name: cm-openshift-env
         - name: emptydir
           emptyDir: {}

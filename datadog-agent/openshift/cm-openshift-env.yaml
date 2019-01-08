@@ -1,0 +1,8 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-openshift-env
+  namespace: default
+data:
+  environment: |
+    no_proxy=.cluster.local,.svc,localhost,127.0.0.1,172.30.0.1,$(DD_KUBERNETES_KUBELET_HOST),$(KUBERNETES_PORT_443_TCP_ADDR)
