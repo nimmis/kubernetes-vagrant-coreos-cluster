@@ -327,15 +327,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
           # set cluster
           if OS.windows?
-            run_remote "/opt/bin/kubectl config set-cluster default-cluster --server=https://#{MASTER_IP} --certificate-authority=/vagrant/artifacts/tls/ca.pem"
-            run_remote "/opt/bin/kubectl config set-credentials default-admin --certificate-authority=/vagrant/artifacts/tls/ca.pem --client-key=/vagrant/artifacts/tls/admin-key.pem --client-certificate=/vagrant/artifacts/tls/admin.pem"
-            run_remote "/opt/bin/kubectl config set-context local --cluster=default-cluster --user=default-admin"
-            run_remote "/opt/bin/kubectl config use-context local"
+            run_remote "/opt/bin/kubectl config set-cluster kubevagrant-cluster --server=https://#{MASTER_IP} --certificate-authority=/vagrant/artifacts/tls/ca.pem"
+            run_remote "/opt/bin/kubectl config set-credentials kubevagrant-admin --certificate-authority=/vagrant/artifacts/tls/ca.pem --client-key=/vagrant/artifacts/tls/admin-key.pem --client-certificate=/vagrant/artifacts/tls/admin.pem"
+            run_remote "/opt/bin/kubectl config set-context kubevagrant --cluster=kubevagrant-cluster --user=kubevagrant-admin"
+            run_remote "/opt/bin/kubectl config use-context kubevagrant"
           else
-            system "kubectl config set-cluster default-cluster --server=https://#{MASTER_IP} --certificate-authority=artifacts/tls/ca.pem"
-            system "kubectl config set-credentials default-admin --certificate-authority=artifacts/tls/ca.pem --client-key=artifacts/tls/admin-key.pem --client-certificate=artifacts/tls/admin.pem"
-            system "kubectl config set-context local --cluster=default-cluster --user=default-admin"
-            system "kubectl config use-context local"
+            system "kubectl config set-cluster kubevagrant-cluster --server=https://#{MASTER_IP} --certificate-authority=artifacts/tls/ca.pem"
+            system "kubectl config set-credentials kubevagrant-admin --certificate-authority=artifacts/tls/ca.pem --client-key=artifacts/tls/admin-key.pem --client-certificate=artifacts/tls/admin.pem"
+            system "kubectl config set-context kubevagrant --cluster=kubevagrant-cluster --user=kubevagrant-admin"
+            system "kubectl config use-context kubevagrant"
           end
 
           info "Configuring Calico..."
