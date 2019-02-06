@@ -19,14 +19,17 @@ spec:
         imagePullPolicy: Always
         name: datadog-agent
         livenessProbe:
-          exec:
-            command:
-            - ./probe.sh
-          initialDelaySeconds: 20
-          periodSeconds: 10
+          httpGet:
+            path: /health
+            port: 5555
+          initialDelaySeconds: 15
+          periodSeconds: 15
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 3
         ports:
           - containerPort: 8125
-            hostPort: 8125
+            # hostPort: 8125
             name: dogstatsdport
             protocol: UDP
           - containerPort: 8126
@@ -42,16 +45,16 @@ spec:
                 # See secrets.yaml.example
                 name: dd-secrets
                 key: dd_api_key
-          - name: DD_COLLECT_KUBERNETES_EVENTS
-            value: "true"
-          - name: DD_LEADER_ELECTION
-            value: "true"
-          - name: KUBERNETES
-            value: "true"
+          - {name: KUBERNETES, value: "true"}
+          - {name: DD_HEALTH_PORT, value: "5555"}
           - name: DD_KUBERNETES_KUBELET_HOST
             valueFrom:
               fieldRef:
                 fieldPath: status.hostIP
+          - name: DD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
           # Other env variables
           - name: ENV
             valueFrom:
@@ -72,45 +75,39 @@ spec:
             cpu: "250m"
         volumeMounts:
           # DD Default stuff
-          - name: dockersocket
-            mountPath: /var/run/docker.sock
-          - name: procdir
-            mountPath: /host/proc
-            readOnly: true
-          - name: cgroups
-            mountPath: /host/sys/fs/cgroup
-            readOnly: true
+          - {name: dockersocket, mountPath: /var/run/docker.sock}
+          - {name: procdir, mountPath: /host/proc, readOnly: true}
+          - {name: cgroups, mountPath: /host/sys/fs/cgroup, readOnly: true}
+          # - {name: s6-run, mountPath: /var/run/s6}
+          - {name: emptydir, mountPath: /var/run/s6}
+
           # DD Log collection setup
-          - name: pointerdir
-            mountPath: /opt/datadog-agent/run
+          - {name: pointerdir, mountPath: /opt/datadog-agent/run}
+
           # DD conf.d and checks.d
-          - # Example: Mount a volume. Each data item will be created as a file.
-            name: vol-datadog-confd
-            mountPath: /conf.d
-          - # Example: Custom check
-            name: vol-datadog-checksd
+          # Example: Mount a volume. Each data item will be created as a file.
+          - {name: vol-datadog-confd, mountPath: /conf.d}
+
+          # Example: Custom check
+          - name: vol-datadog-checksd
             mountPath: /opt/datadog-agent/checks.d/hello.py
             subPath: hello.py
           - name: emptydir
             mountPath: /etc/datadog-agent/conf.d/disk.d/
-          - # Example: Mount/overwrite a specific file
-            name: file-datadog-kubernetes
+          # Example: Mount/overwrite a specific file
+          - name: file-datadog-kubernetes
             mountPath: /etc/datadog-agent/datadog-kubernetes.yaml
             subPath: datadog-kubernetes-yaml
-        # Others stuff
-          - name: ssl-certs
-            mountPath: /etc/kubernetes/ssl
+          # - name: file-datadog-kubernetes
+          #   mountPath: /etc/datadog-agent/conf.d/kubernetes_state.d/auto_conf.yaml
+          #   subPath: autoconf-kubernetes_state-yaml
+          # Others stuff
+          - { name: ssl-certs, mountPath: /etc/kubernetes/ssl}
       volumes:
         # DD Default stuff
-        - hostPath:
-            path: /var/run/docker.sock
-          name: dockersocket
-        - hostPath:
-            path: /proc
-          name: procdir
-        - hostPath:
-            path: /sys/fs/cgroup
-          name: cgroups
+        - {name: dockersocket, hostPath: {path: /var/run/docker.sock}}
+        - {name: procdir, hostPath: {path: /proc}}
+        - {name: cgroups, hostPath: {path: /sys/fs/cgroup}}
         # DD Log collection setup
         - name: pointerdir
           hostPath:
@@ -118,21 +115,12 @@ spec:
           # configMap:
           #   name: datadogtoken
         # DD conf.d and checks.d
-        - name: file-datadog-kubernetes
-          configMap:
-            name: cm-datadog-yaml
-        - name: vol-datadog-confd
-          configMap:
-            name: cm-datadog-confd
+        - { name: file-datadog-kubernetes, configMap: {name: cm-datadog-yaml}}
+        - { name: vol-datadog-confd, configMap: {name: cm-datadog-confd}}
             # items:  # If you want to be more specific
             #   - key: logs.yaml
             #     path: agentlogs.yaml
-        - name: vol-datadog-checksd
-          configMap:
-            name: cm-datadog-checksd
+        - { name: vol-datadog-checksd, configMap: {name: cm-datadog-checksd}}
         # Others stuff
-        - name: ssl-certs
-          hostPath:
-            path: /etc/kubernetes/ssl
-        - name: emptydir
-          emptyDir: {}
+        - { name: ssl-certs, hostPath: {path: /etc/kubernetes/ssl}}
+        - { name: emptydir, emptyDir: {}}
