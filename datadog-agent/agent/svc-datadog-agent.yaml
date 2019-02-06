@@ -1,0 +1,19 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: svc-datadog-agent
+  namespace: default
+  labels:
+    app: datadog-agent
+spec:
+  selector:
+    app: datadog-agent
+  ports:
+    - port: 8125
+      name: dogstatsdport
+      protocol: UDP
+      targetPort: 8125
+    - port: 8126
+      name: traceport
+      protocol: TCP
+      targetPort: 8126
