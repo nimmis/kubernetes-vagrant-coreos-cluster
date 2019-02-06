@@ -6,7 +6,14 @@ metadata:
 data:
   hello.py: |+
     __version__ = '1.0.0'
-    from checks import AgentCheck
+    # the following try/except block will make the custom check compatible with any Agent version
+    try:
+        # first, try to import the base class from old versions of the Agent...
+        from checks import AgentCheck
+    except ImportError:
+        # ...if the above failed, the check is running in Agent version 6 or later
+        from datadog_checks.checks import AgentCheck
+  
     class HelloCheck(AgentCheck):
         def check(self, instance):
             self.gauge('hello.world', 1)
