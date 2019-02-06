@@ -38,13 +38,6 @@ data:
   #       mixer_endpoint: http://istio-telemetry.istio-system:9093/metrics
   #       send_histograms_buckets: true
   
-  # kubernetes_state.yaml: |+
-  #   ad_identifiers:
-  #   - kube-state-metrics
-  #   init_config:
-  #   instances:
-  #     - kube_state_url: http://%%host%%:%%port_0%%/metrics
-  
   # goexpvar.yaml: |
   #   ad_identifiers:
   #   - hawkular-openshift-agent-example-go-expvar
