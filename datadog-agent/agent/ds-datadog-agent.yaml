@@ -113,7 +113,7 @@ spec:
           hostPath:
             path: /var/run/datadog-agent.run
           # configMap:
-          #   name: datadogtoken
+          #   name: datadogpointerdir
         # DD conf.d and checks.d
         - { name: file-datadog-kubernetes, configMap: {name: cm-datadog-yaml}}
         - { name: vol-datadog-confd, configMap: {name: cm-datadog-confd}}
