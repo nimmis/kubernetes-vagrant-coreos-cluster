@@ -18,22 +18,22 @@ spec:
       #- image: datadog/agent-dev:latest # Agent-Dev builds: https://hub.docker.com/r/datadog/agent-dev/tags/
         imagePullPolicy: Always
         name: datadog-agent
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 5555
-          initialDelaySeconds: 15
-          periodSeconds: 15
-          timeoutSeconds: 5
-          successThreshold: 1
-          failureThreshold: 3
+        # livenessProbe:
+        #   httpGet:
+        #     path: /health
+        #     port: 5555
+        #   initialDelaySeconds: 15
+        #   periodSeconds: 15
+        #   timeoutSeconds: 5
+        #   successThreshold: 1
+        #   failureThreshold: 3
         ports:
           - containerPort: 8125
-            # hostPort: 8125
+            hostPort: 8125
             name: dogstatsdport
             protocol: UDP
           - containerPort: 8126
-            # hostPort: 8126
+            hostPort: 8126
             name: traceport
             protocol: TCP
         env:
