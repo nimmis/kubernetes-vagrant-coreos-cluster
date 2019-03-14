@@ -13,6 +13,10 @@ spec:
       name: datadog-agent
     spec:
       serviceAccountName: datadog-agent
+      # initContainers:
+      # - name: init-myservice
+      #   image: busybox
+      #   command: ['/bin/sleep', '15']
       containers:
       - image: datadog/agent:latest # Agent builds: https://hub.docker.com/r/datadog/agent/tags/
       #- image: datadog/agent-dev:latest # Agent-Dev builds: https://hub.docker.com/r/datadog/agent-dev/tags/
