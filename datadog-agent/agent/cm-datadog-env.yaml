@@ -6,12 +6,15 @@ metadata:
 data:
   # DD Log collection setup
   DD_LOGS_ENABLED: "true"
+  DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL: "false"
   # DD APM setup
   DD_APM_ENABLED: "true"
+  DD_APM_NON_LOCAL_TRAFFIC: "true"
   # DD Other variables. 
   # Look for anything within BindEnv() or BindEnvAndSetDefault(), then set using DD_<config_option>
   # Reference: https://github.com/DataDog/datadog-agent/blob/master/pkg/config/config.go#L267
   DD_LOG_LEVEL: "debug"
+  DD_LOG_FORMAT_JSON: "false"
   DD_DOGSTATSD_SO_RCVBUF: "2048"
   DD_DOGSTATSD_NON_LOCAL_TRAFFIC: "true"
 
@@ -20,8 +23,8 @@ data:
   DD_KUBERNETES_POD_ANNOTATIONS_AS_TAGS: '{"anntn_to_get":"kube_antn"}'
 
   # To include/exclude from Metric Collection (Docker integration), Logs Collection, and Autodiscovery.
-  # DD_AC_EXCLUDE: "image:.*"
-  # DD_AC_INCLUDE: "name:datadog-agent"
+  DD_AC_EXCLUDE: "name:datadog-agent"
+  # DD_AC_INCLUDE: "image:.*"
 
   # additional host tags
   DD_TAGS: "cluster:vagrant"
