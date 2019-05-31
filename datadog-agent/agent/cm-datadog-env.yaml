@@ -6,10 +6,13 @@ metadata:
 data:
   # DD Log collection setup
   DD_LOGS_ENABLED: "true"
-  DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL: "false"
+  DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL: "true"
   # DD APM setup
   DD_APM_ENABLED: "true"
   DD_APM_NON_LOCAL_TRAFFIC: "true"
+  # DD Evvent Collection
+  DD_LEADER_ELECTION: "true"
+  DD_COLLECT_KUBERNETES_EVENTS: "true"
   # DD Other variables. 
   # Look for anything within BindEnv() or BindEnvAndSetDefault(), then set using DD_<config_option>
   # Reference: https://github.com/DataDog/datadog-agent/blob/master/pkg/config/config.go#L267

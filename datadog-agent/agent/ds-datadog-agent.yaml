@@ -86,7 +86,7 @@ spec:
           - {name: emptydir, mountPath: /var/run/s6}
 
           # DD Log collection setup
-          - {name: pointerdir, mountPath: /opt/datadog-agent/run}
+          - {name: datadogrunpath, mountPath: /opt/datadog-agent/run}
 
           # DD conf.d and checks.d
           # Example: Mount a volume. Each data item will be created as a file.
@@ -102,6 +102,9 @@ spec:
           - name: file-datadog-kubernetes
             mountPath: /etc/datadog-agent/datadog-kubernetes.yaml
             subPath: datadog-kubernetes-yaml
+          - name: file-datadog-kubernetes
+            mountPath: /etc/datadog-agent/datadog-k8s-docker.yaml
+            subPath: datadog-k8s-docker-yaml
           # - name: file-datadog-kubernetes
           #   mountPath: /etc/datadog-agent/conf.d/kubernetes_state.d/auto_conf.yaml
           #   subPath: autoconf-kubernetes_state-yaml
@@ -113,11 +116,9 @@ spec:
         - {name: procdir, hostPath: {path: /proc}}
         - {name: cgroups, hostPath: {path: /sys/fs/cgroup}}
         # DD Log collection setup
-        - name: pointerdir
+        - name: datadogrunpath
           hostPath:
-            path: /var/run/datadog-agent.run
-          # configMap:
-          #   name: datadogpointerdir
+            path: /opt/datadog-agent/run
         # DD conf.d and checks.d
         - { name: file-datadog-kubernetes, configMap: {name: cm-datadog-yaml}}
         - { name: vol-datadog-confd, configMap: {name: cm-datadog-confd}}

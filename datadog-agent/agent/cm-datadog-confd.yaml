@@ -9,12 +9,35 @@ data:
 
     instances:
         [{}]
+  http_check.yaml: |+
+    init_config:
+    instances:
+     - name: MyWeb1
+       tags: ["name:MyWeb1"]
+       <<: &anchor
+         url: http://example.com:80
+         timeout: 2
+         method: get
+     - name: MyWeb2
+       tags: ["name:MyWeb2"]
+       <<: *anchor 
+     - name: MyWeb3
+       tags: ["name:MyWeb3"]
+       <<: *anchor 
+     - name: MyWeb4
+       tags: ["name:MyWeb4"]
+       <<: *anchor 
+  # nginx_ingress_controller.yaml: |+
+  #   init_config:
+
+  #   instances:
+  #       - prometheus_url: http://my-nginx-nginx-ingress-controller-metrics.default:9913/metrics
   logs.yaml: |+
     logs:
     - type: file
       path: /var/log/datadog/agent.log
       service: monitoring
-      source: ddagent
+      source: agent
       tags:
        - env:staging
        - project:x
@@ -37,6 +60,8 @@ data:
   #     - cadvisor_metrics_endpoint: ""
 
   # istio.yaml: |+
+  #   ad_identifiers:
+  #     - mixer
   #   init_config:
   #   instances:
   #     - istio_mesh_endpoint: http://istio-telemetry.istio-system:42422/metrics
@@ -57,26 +82,35 @@ metadata:
   namespace: default
 data:
   datadog-kubernetes-yaml: |
+    ## ==============================
     ## Original content below copied from datadog-kubernetes.yaml
-    ## ===========
+    ## https://github.com/DataDog/datadog-agent/blob/master/Dockerfiles/agent/datadog-kubernetes.yaml
+    ## ==============================
     ## Provides autodetected defaults, for kubernetes environments,
     ## please see datadog.yaml.example for all supported options
 
-    # Autodiscovery
+    # Autodiscovery for Kubernetes
     listeners:
       - name: kubelet
-
     config_providers:
     # The kubelet provider handles templates embedded in pod annotations, see
     # https://docs.datadoghq.com/guides/autodiscovery/#template-source-kubernetes-pod-annotations
-    - name: kubelet
-      polling: true
+      - name: kubelet
+        polling: true
 
+    # Enable APM by setting the DD_APM_ENABLED envvar to true, or override this configuration
+    apm_config:
+      enabled: false
+      apm_non_local_traffic: true
+
+    # Use java cgroup memory awareness
+    jmx_use_cgroup_memory_limit: true
+
+    ## ==============================
     ## Additional configuration parameters below
-    ## ==========
+    ## ==============================
     # kubernetes_kubelet_host: autodetected
     kubernetes_http_kubelet_port: 10255
-    # kubernetes_https_kubelet_port: 10250
     kubernetes_https_kubelet_port: 10250
 
     #When using HTTPS, we verify the kubelet's certificate, you can tune this:
@@ -89,3 +123,29 @@ data:
     #     - host1
     #     - host2kind: ConfigMap
     #
+  datadog-k8s-docker-yaml: |
+    ## ==============================
+    ## Content from datadog-kubernetes.yaml
+    ## https://github.com/DataDog/datadog-agent/blob/master/Dockerfiles/agent/datadog-k8s-docker.yaml
+    ## ==============================
+    ## Provides autodetected defaults, for kubernetes environments
+    ## where configuration templates are set as docker labels
+    ## please see datadog.yaml.example for all supported options
+
+    # Autodiscovery for Kubernetes
+    listeners:
+      - name: kubelet
+    config_providers:
+      - name: kubelet
+        polling: true
+      # needed to support legacy docker label config templates
+      - name: docker
+        polling: true
+
+    # Enable APM by setting the DD_APM_ENABLED envvar to true, or override this configuration
+    apm_config:
+      enabled: false
+      apm_non_local_traffic: true
+
+    # Use java cgroup memory awareness
+    jmx_use_cgroup_memory_limit: true
