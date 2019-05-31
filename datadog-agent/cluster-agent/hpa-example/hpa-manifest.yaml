@@ -12,8 +12,19 @@ spec:
   metrics:
   - type: External
     external:
+      # Metric name from Datadog app
       metricName: nginx.net.request_per_s
       metricSelector:
         matchLabels:
-            kube_container_name: nginx
-      targetAverageValue: 9
+          # Tag scope. Equivalent to a metric_query "nginx.net.request_per_s(kube_container_name:nginx)"
+          kube_container_name: nginx
+      targetAverageValue: 5
+  - type: External
+    external:
+      # Metric name from Datadog app
+      metricName: system.cpu.idle
+      metricSelector:
+        matchLabels:
+          # Tag scope. Equivalent to a metric_query "nginx.net.request_per_s(kube_container_name:nginx)"
+          host: ubuntu-a6-1
+      targetAverageValue: 150

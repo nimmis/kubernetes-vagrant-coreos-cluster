@@ -1,0 +1,93 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-datadog-confd
+  namespace: default
+data:
+  hello.yaml: |+
+    init_config:
+
+    instances:
+        [{}]
+  logs.yaml: |+
+    logs:
+    - type: file
+      path: /var/log/datadog/agent.log
+      service: monitoring
+      source: ddagent
+      tags:
+       - env:staging
+       - project:x
+
+    # - type: docker
+    #   service: web
+    #   source: kubernetes
+    #   ## Choose between image/label/name
+    #   # image: web
+    #   # label: jweb # See demo/web pod labels
+    #   # name: nameweb
+    #   log_processing_rules:
+    #   - type: multi_line
+    #     name: log_start_with_date
+    #     pattern: \d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])
+
+  # istio.yaml: |+
+  #   init_config:
+  #   instances:
+  #     - istio_mesh_endpoint: http://istio-telemetry.istio-system:42422/metrics
+  #       mixer_endpoint: http://istio-telemetry.istio-system:9093/metrics
+  #       send_histograms_buckets: true
+  
+  # kubernetes_state.yaml: |+
+  #   ad_identifiers:
+  #   - kube-state-metrics
+  #   init_config:
+  #   instances:
+  #     - kube_state_url: http://%%host%%:%%port_0%%/metrics
+  
+  # goexpvar.yaml: |
+  #   ad_identifiers:
+  #   - hawkular-openshift-agent-example-go-expvar
+  #   init_config:
+  #   instances:
+  #     - expvar_url: http://%%env_DD_KUBERNETES_KUBELET_HOST%%:%%port_0%%/debug/vars
+---
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: cm-datadog-yaml
+  namespace: default
+data:
+  datadog-kubernetes-yaml: |
+    ## Original content below copied from datadog-kubernetes.yaml
+    ## ===========
+    ## Provides autodetected defaults, for kubernetes environments,
+    ## please see datadog.yaml.example for all supported options
+
+    # Autodiscovery
+    listeners:
+      - name: kubelet
+
+    config_providers:
+    # The kubelet provider handles templates embedded in pod annotations, see
+    # https://docs.datadoghq.com/guides/autodiscovery/#template-source-kubernetes-pod-annotations
+    - name: kubelet
+      polling: true
+
+    ## Additional configuration parameters below
+    ## ==========
+    # kubernetes_kubelet_host: autodetected
+    kubernetes_http_kubelet_port: 10255
+    # kubernetes_https_kubelet_port: 10250
+    kubernetes_https_kubelet_port: 10250
+
+    #When using HTTPS, we verify the kubelet's certificate, you can tune this:
+    # kubelet_tls_verify: true
+    kubelet_client_ca: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+    # proxy:
+    #   http: http(s)://user:password@proxy_for_http:port
+    #   https: http(s)://user:password@proxy_for_https:port
+    #   no_proxy:
+    #     - host1
+    #     - host2kind: ConfigMap
+    #

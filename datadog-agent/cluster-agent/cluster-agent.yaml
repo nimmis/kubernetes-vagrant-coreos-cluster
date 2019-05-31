@@ -28,19 +28,31 @@ spec:
                 name: dd-secrets
                 key: dd_api_key
           # Optionally reference an APP KEY for the External Metrics Provider.
-          # - name: DD_APP_KEY
-          #   value: '<YOUR_APP_KEY>'
-          - name: DD_COLLECT_KUBERNETES_EVENTS
-            value: "true"
-          - name: DD_LEADER_ELECTION
-            value: "true"
-          - name: DD_CLUSTER_AGENT_AUTH_TOKEN
-            value: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-          - name: DD_EXTERNAL_METRICS_PROVIDER_ENABLED
-            value: 'true'
-          # If using a secret, you can alternatively use:
+          - name: DD_APP_KEY
+            # value: <YOUR_API_KEY>
+            valueFrom:
+              secretKeyRef:
+                # See secrets.yaml.example
+                name: dd-secrets
+                key: dd_app_key
+
+          ## Migrated to cm-dca-env
+          # - name: DD_COLLECT_KUBERNETES_EVENTS
+          #   value: "true"
+          # - name: DD_LEADER_ELECTION
+          #   value: "true"
+          # - name: DD_EXTERNAL_METRICS_PROVIDER_ENABLED
+          #   value: "true"
+
           # - name: DD_CLUSTER_AGENT_AUTH_TOKEN
-          #   valueFrom:
-          #     secretKeyRef:
-          #       name: datadog-auth-token
-          #       key: token
+          #   value: <ThirtyX2XcharactersXlongXtoken>
+          # If using a secret, you can alternatively use:
+          - name: DD_CLUSTER_AGENT_AUTH_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: datadog-auth-token
+                key: token
+        # Other environment variables from ConfigMap cm-datadog-env.yaml
+        envFrom:
+          - configMapRef:
+              name: cm-dca-env
