@@ -99,16 +99,17 @@ spec:
           - name: emptydir
             mountPath: /etc/datadog-agent/conf.d/disk.d/
           # Example: Mount/overwrite a specific file
-          - name: file-datadog-kubernetes
-            mountPath: /etc/datadog-agent/datadog-kubernetes.yaml
-            subPath: datadog-kubernetes-yaml
-          - name: file-datadog-kubernetes
-            mountPath: /etc/datadog-agent/datadog-k8s-docker.yaml
-            subPath: datadog-k8s-docker-yaml
+          # - name: file-datadog-kubernetes
+          #   mountPath: /etc/datadog-agent/datadog-kubernetes.yaml
+          #   subPath: datadog-kubernetes-yaml
+          # - name: file-datadog-kubernetes
+          #   mountPath: /etc/datadog-agent/datadog-k8s-docker.yaml
+          #   subPath: datadog-k8s-docker-yaml
           # - name: file-datadog-kubernetes
           #   mountPath: /etc/datadog-agent/conf.d/kubernetes_state.d/auto_conf.yaml
           #   subPath: autoconf-kubernetes_state-yaml
           # Others stuff
+          - { name: wheels, mountPath: /host/wheels, readOnly: true}
           - { name: ssl-certs, mountPath: /etc/kubernetes/ssl}
       volumes:
         # DD Default stuff
@@ -128,4 +129,5 @@ spec:
         - { name: vol-datadog-checksd, configMap: {name: cm-datadog-checksd}}
         # Others stuff
         - { name: ssl-certs, hostPath: {path: /etc/kubernetes/ssl}}
+        - { name: wheels, hostPath: {path: /vagrant/wheels/}}
         - { name: emptydir, emptyDir: {}}
