@@ -377,10 +377,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
                 run_remote "/opt/bin/kubectl apply -f /home/core/dashboard-rbac.yaml"
               end
             else
-              system "kubectl apply -f plugins/dashboard/dashboard.yaml"
-              if AUTHORIZATION_MODE == "RBAC"
-                system "kubectl apply -f plugins/dashboard/dashboard-rbac.yaml"
-              end
+              system "kubectl apply -f plugins/dashboard/"
+              # system "kubectl apply -f plugins/dashboard/dashboard.yaml"
+              # if AUTHORIZATION_MODE == "RBAC"
+              #   system "kubectl apply -f plugins/dashboard/dashboard-rbac.yaml"
+              # end
             end
           end
         end
